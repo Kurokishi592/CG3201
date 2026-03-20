@@ -1,0 +1,100 @@
+# Slide-by-slide outline
+
+- Slide 1: CG3201 Machine Learning & / Deep Learning / Lecture 3 Bayesian Learning and Modelling
+- Slide 2: Recap Lecture 2 / From linear classifiers to Support Vector Machines (SVM). / Hard-Margin SVM: classify with margins.
+- Slide 3: Comparing Models from Results / In our discussion of SVM, we compare the different linear classifiers via / the margins available for the classification:
+- Slide 4: Comparing Models from Results / Suppose we have a spam vs. ham email task. / Model A: of the 100 spams, it can correctly detect 70 of them.
+- Slide 5: Bayesian Learning Fundamentals 1: / ✓ Introduction / Recall to Probability / ✓ The Bayes’ Rule
+- Slide 6: Probability: Two Interpretations / Probability theory is nothing, but common sense reduced to calculation. / – Pierre Laplace, 1812
+- Slide 7: Properties of Probability of event(s): I / Note: for this course, probability of an event denoted as: 𝑃(𝐴) / 𝑃(𝐴) satisfy: 0 ≤ 𝑃 𝐴 ≤ 1.
+- Slide 8: Properties of Probability of event(s): II / Note: for this course, probability of an event denoted as: 𝑃 𝐴  or 𝑝(𝐴). / Conditional probability of 𝐵 happening given 𝐴 has occurred:
+- Slide 9: Discrete and Continuous Random Variables (RV) / A mathematical formalization of a quantity or object which depends / on random events.
+- Slide 10: Discrete and Continuous Random Variables (RV) / Important: Note whether the variable is discrete or continuous! Could be / confusing sometimes. Example:
+- Slide 11: Bayes’ Rule / “Bayesian”: refer to inference methods that represent “degrees of / certainty” using probability theory, and which leverage Bayes’ rule, to
+- Slide 12: Bayes’ Rule: in Detail / 𝑝 𝐻 = ℎ 𝑌 = 𝑦 = 𝑝 𝐻 = ℎ 𝑝(𝑌 = 𝑦|𝐻 = ℎ) / 𝑝(𝑌 = 𝑦)
+- Slide 13: Bayes’ Rule: Example 1 – Weather Forecast / Posterior / Probability
+- Slide 14: Bayes’ Rule: Example 1 – Weather Forecast / We know that: 𝑃 𝐻 = / 5
+- Slide 15: Bayes Rule: Example 2 – Disease Testing / Suppose there is an outbreak of a disease / (e.g., COVIDv2). Jack is taking a diagnostic
+- Slide 16: Bayes’ Rule: Example 2 – Disease Testing / We know that: 𝑃 𝐻 = 0.1 and 𝑃 𝑌 𝐻 = 0.875, 𝑃 ෨𝑌 ෩𝐻 = 0.975. / What we want: 𝑃(𝐻|𝑌).
+- Slide 17: Bayes Rule: Example 2 – Disease Testing / Suppose there is an outbreak of a disease / (e.g., COVIDv2). Jack is taking a diagnostic
+- Slide 18: Bayes’ Rule: Example 2 – Disease Testing / We know that: 𝑃 𝐻 = 0.01 and 𝑃 𝑌 𝐻 = 0.875, 𝑃 ෨𝑌 ෩𝐻 = 0.975. / What we want: 𝑃(𝐻|𝑌).
+- Slide 19: Bernoulli Distribution / One of the simplest probability distribution – can be used to model binary / events. (E.g., coin flipping)
+- Slide 20: Binomial Distribution / Now, if we flip a coin multiple times. Then the sum of the Bernoulli random / variables will follow a Binomial distribution.
+- Slide 21: Binomial Distribution
+- Slide 22: Binomial Distribution: Example
+- Slide 23: Predicting a Binary Variable / When we want to predict a binary variable 𝑦 ∈ {0,1} given input 𝑥 ∈ 𝒳, we / need to use a conditional probability distribution:
+- Slide 24: The Sigmoid Function Visualized / Comparing the sigmoid function 𝜎 𝑎 = 1 + 𝑒−𝑎 −1 and the Heaviside / step function 𝕀(𝑎 > 0).
+- Slide 25: Categorical and Multinomial Distribution / Problems for Bernoulli and Binomial distributions? / Can only model the probability for an event with ONLY 2 outcomes.
+- Slide 26: Categorical and Multinomial Distribution / The categorical distribution is a special case of multinomial distribution. / Repeat the categorical trials 𝑁 times (e.g., roll a 𝐶-sided dice 𝑁 times).
+- Slide 27: Predicting a Categorical Variable with Softmax / When we want to predict a categorical variable 𝑦 given input 𝑥 ∈ 𝒳, we / need to use a conditional probability distribution:
+- Slide 28: Something More on Softmax / 1. Properties of Softmax: / a. softmax 𝒂 𝑐 ∈ 0,1 , and ∑𝑐=1
+- Slide 29: Illustration of Softmax Properties
+- Slide 30: Univariate Gaussian Distribution / The most widely used distribution of real-valued random variables 𝑦 ∈ ℝ / is the Gaussian distribution (equivalently, normal distribution).
+- Slide 31: Univariate Gaussian Distribution / The pdf is the derivative of the cdf: 𝑝 𝑥 ≜ / 𝑑
+- Slide 32: Univariate Gaussian Distribution / The pdf is the derivative of the cdf: 𝑝 𝑥 ≜ / 𝑑
+- Slide 33: Other Common Univariate Distributions / Dirac delta: when the 𝜎 of Gaussian → 0. / Student 𝑡-distribution: less sensitive to
+- Slide 34: Other Common Univariate Distributions / Beta distribution: a suitable model for the random / behavior of percentages and proportions
+- Slide 35: Bayesian Learning and Modelling 1: / ✓ Maximum Likelihood Estimation (MLE) / ✓ MLE for Common Probability Distributions
+- Slide 36: Estimating Probability Models: Model Fitting / Now suppose we know that the data would follow a certain probability model, / controlled by parameters 𝜽, but we don’t know what the model exactly is.
+- Slide 37: Maximum Likelihood Estimation (MLE) / The intuitive objective: pick the parameters that assign the highest prob. / to the training data (usually labelled) – maximum likelihood estimation:
+- Slide 38: MLE for Bernoulli Distribution / Suppose 𝑌 is a random variable representing a coin toss, where the event / 𝑌 = 1 corresponds to heads and 𝑌 = 0 corresponds to tails.
+- Slide 39: MLE for Univariate Gaussian Distribution / Suppose 𝑌~𝑁(𝜇, 𝜎2) and 𝒟 = 𝑦𝑛: 𝑛 = 1: 𝑁 is an iid sample of size 𝑁. / The parameters are 𝜽 = (𝜇, 𝜎2). We estimate with MLE:
+- Slide 40: Empirical Risk Minimization (ERM) / The MLE is based on: NLL 𝜽 = − ∑𝑛=1 / 𝑁 log 𝑝(𝑦𝑛|𝑥𝑛, 𝜽)
+- Slide 41: ERM: Minimizing Misclassification Rate / If we are solving a classification problem, an intuitive loss selection would / be the 0-1 loss: (𝑓 being some kind of predictor)
+- Slide 42: Bayesian Learning and Modelling 2: / ✓ Bayesian Decision Theory and the Classification Problem / ✓ Maximum A Posteriori (MAP).
+- Slide 43: Decision Theory: Making the Right Decision / More often, we don’t actually know the type of distribution for the data either – / not to mention the parameter of the distribution.
+- Slide 44: (Bayesian) Decision Theory: in Detail / In decision theory, we assume the decision maker, or agent, has a set of / possible actions, 𝒜, to choose from.
+- Slide 45: (Bayesian) Decision Theory: in Detail / Every action 𝑎 ∈ 𝒜 has cost and benefits, depending on the underlying / state of nature ℎ ∈ ℋ. How can we explicitly model such cost / benefit?
+- Slide 46: (Bayesian) Decision Theory: in Detail / Define: loss function ℓ(ℎ, 𝑎) – action 𝑎 taken at state ℎ. / Compute a posterior expected loss (risk) for each possible 𝑎: (where the
+- Slide 47: Decision Theory: in Detail / The optimal policy 𝜋∗ 𝑥 , or Bayes decision rule 𝛿∗(𝑥): / 𝜋∗ 𝑥 = argmin
+- Slide 48: Classification with Zero-One Loss / Set the following assumptions: / The states of nature correspond to class labels: ℋ = 𝒴 = {1, … , 𝐶};
+- Slide 49: Classification with Zero-One Loss / The posterior expected loss 𝜌 𝑎 𝑥 ≜ 𝔼𝑝 ℎ 𝑥 ℓ ℎ, 𝑎 : / 𝜌 𝑎 𝑥 = 𝜌 ො𝑦 𝑥 = 𝑝 ො𝑦 ≠ 𝑦∗ 𝑥 = 1 − 𝑝 ො𝑦 = 𝑦∗ 𝑥
+- Slide 50: Cost-Sensitive Classification / Problem of the zero-one loss? / Cost of false positive (ℓ01) = cost of false negative (ℓ10)
+- Slide 51: Classification with Reject Option / We may be able to say “I don’t know” instead of returning an answer that / we don’t really trust – choosing the reject option.
+- Slide 52: Classification with Reject Option / Set the following assumptions: / The states of nature correspond to class labels: ℋ = 𝒴 = {1, … , 𝐶};
+- Slide 53: Class Confusion Matrices / We can choose the optimal label in a binary classification problem by / thresholding the probability – hard threshold!
+- Slide 54: Class Confusion Matrices / True positive rate (TPR), or / sensitivity, recall, hit rate:
+- Slide 55: Class Confusion Matrices / True positive rate (TPR), or / sensitivity, recall, hit rate:
+- Slide 56: Class Confusion Matrices / True positive rate (TPR), or / sensitivity, recall, hit rate:
+- Slide 57: Plotting the ROC Curve: Example / ROC curve – Plot the TPR vs FPR as an implicit function of 𝜏, i.e., plot / TPR vs FPR with varying 𝜏.
+- Slide 58: The ROC Curve / Quality of a ROC curve is often summarized using the Area Under the / Curve (AUC). Higher AUC scores better; max is 1.
+- Slide 59: Class Imbalance and the ROC Curve / In some problems, there is severe class imbalance. / E.g., in information retrieval, the set of negatives (irrelevant items) is usually much
+- Slide 60: The Precision-Recall Curve / Problems of the ROC curve: / Require well-defined “true positives” and “true negatives”;
+- Slide 61: The Precision-Recall (PR) Curve / Precision: fraction of our detections are actually positive: / 𝒫 𝜏 ≜ 𝑝 𝑦 = 1 ො𝑦 = 1, 𝜏 = 𝑇𝑃𝜏/(𝑇𝑃𝜏 + 𝐹𝑃𝜏)
+- Slide 62: An Example of PR Curve in Object Detection / Run object detector on all test images (with NMS). / For each category, compute Average Precision
+- Slide 63: An Example of PR Curve in Object Detection / Run object detector on all test images (with NMS). / For each category, compute Average Precision
+- Slide 64: Plotting the PR Curve: Example / PR curve – Plot the precision vs recall as an implicit function of 𝜏, i.e., plot / precision vs recall with varying 𝜏.
+- Slide 65: The PR Curve / The statistics to summarize the PR curve: / Precision at 𝐾 score: the precision for a fixed recall level;
+- Slide 66: The PR Curve and F-scores / For a given point on the PR curve, can combine / the precision value 𝒫 and the recall value ℛ into a
+- Slide 67: Probabilistic Prediction Problem / In previous slides: assumed the set of possible actions was to pick a single class / label (or possibly the “reject” action).
+- Slide 68: Bayesian Learning Fundamentals 2: / ✓ KL-Divergence / ✓ Entropy and Mutual Information
+- Slide 69: KL Divergence (KL-Div) / Loss function is measured between two “distributions”. / Kullback Leibler divergence (KL divergence) is a measure of how one
+- Slide 70: Entropy / The key component of KL Divergence: entropy. / The entropy of a probability distribution can be interpreted as a measure of
+- Slide 71: Entropy for Discrete Random Variables / More specifically, formulate the entropy of a discrete RV 𝑋 with distribution / 𝑝 over 𝐾 states (classes) as:
+- Slide 72: Entropy for Discrete Random Variables / ℍ 𝑋 ≜ − ෍ 𝑝 𝑋 = 𝑘 log2 𝑝 𝑋 = 𝑘 = −𝔼𝑋 log 𝑝 𝑋 / Discrete distribution with Maximum entropy is uniform distribution.
+- Slide 73: Mutual Information / KL divergence: measure how dissimilar two distributions were. / Then can we measure how dependent two RVs are?
+- Slide 74: Mutual Information: Interpretation / 𝕀 𝑋; 𝑌 ≜ 𝔻𝐾𝐿 𝑝 𝑥, 𝑦 ∥ 𝑝 𝑥 𝑝 𝑦 = ෍ / 𝑦
+- Slide 75: Mutual Information: Interpretation / 𝕀 𝑋; 𝑌 ≜ 𝔻𝐾𝐿 𝑝 𝑥, 𝑦 ∥ 𝑝 𝑥 𝑝 𝑦 = ෍ / 𝑦
+- Slide 76: Mutual Information: An Example / Suppose two RVs 𝑋 and 𝑌 are related to the input integer 𝑛 ∈ 1, … , 8 . / Define 𝑋 𝑛 = 1 if 𝑛 is even and 𝑌 𝑛 = 1 if 𝑛 is a prime number. Thus:
+- Slide 77: Entropy and Mutual Information
+- Slide 78: Bayesian Learning Fundamentals 3: / ✓ The Frequentist Decision / ✓ Application in Supervised Learning
+- Slide 79: Recall: Frequentist vs. Bayesian / Frequentist interpretation: probabilities represent long run frequencies of / events that can happen multiple times.
+- Slide 80: Frequentist Decision Theory / In the Frequentist decision theory, treat the unknown state of nature / (denoted by 𝜽 instead of ℎ) as a fixed yet unknown quantity, and treat
+- Slide 81: The Bayes Risk / 𝑅 𝜽, 𝛿 ≜ 𝔼𝑝 𝑥 𝜽 ℓ 𝜃, 𝛿 𝑥 / In general, the true state of nature 𝜽 that generates the data 𝑥 is unknown,
+- Slide 82: The Bayes Estimator / Recall: in the Bayesian decision theory, we define the optimal policy, / also the Bayes estimator or Bayes decision rule as:
+- Slide 83: The Maximum Risk / Use of a prior might seem undesirable in certain cases. We can therefore / define the maximum risk as:
+- Slide 84: ERM and Frequentist Decision Theory / We consider how to apply the frequentist decision theory in the context of / supervised learning.
+- Slide 85: ERM and Frequentist Decision Theory / In supervised learning, / Different unknown state of nature (output 𝑦) for each different input 𝑥,
+- Slide 86: ERM and Frequentist Decision Theory / In most cases, quite impossible to obtain the unknown true distribution 𝑝∗. / Instead, can approximate it with the empirical distribution of 𝑁 samples:
+- Slide 87: Performance of Functions Fitted with ERM / What is the theoretical performance of functions that are fitted with the / ERM principle?
+- Slide 88: The risk of our chosen predictor 𝑓𝑁 / ∗ compared to the best possible / predictor 𝑓∗∗ can be decomposed into two terms:
+- Slide 89: Regularization and Regularized Risk / To avoid the chance of overfitting, it is common to add a complexity / penalty to the objective function – regularization.
+- Slide 90: Regularization and Regularized Risk / To avoid the chance of overfitting, it is common to add a complexity / penalty to the objective function – regularization.
+- Slide 91: Occam’s Razor / Occam's razor is the problem-solving principle that recommends searching / for explanations constructed with the smallest possible set of elements.
+- Slide 92: Occam’s Razor
+- Slide 93: Population Risk Estimation with Validation / A simple way to estimate the population risk for a supervised learning / setup: cross-validation.
+- Slide 94: Cross-Validation / For each model, we fit it to the training set to obtain ෡𝜽𝜆 𝒟𝑡𝑟 . Then use the / unregularized empirical risk on the validation set as an estimate of the
+- Slide 95: Cross-Validation / Consider the training data is very limited – not enough data to train on! / Impossible to make reliable estimate of future performance.
+- Slide 96: Cross-Validation / Split the training data into 𝐾 folds; / For each fold 𝑘 ∈ 1, … , 𝐾 , train on
+- Slide 97: Cross-Validation: Example
+- Slide 98: Summary / Fundamentals: Probability and the difference between distributions: / Probability and the Bayes’ Rule.
