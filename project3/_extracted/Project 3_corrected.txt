@@ -1,0 +1,147 @@
+# FILE: Project 3_corrected.pdf
+# PAGES: 4
+
+
+===== PAGE 1 TEXT =====
+Project 3: Residual Networks with Different Residual 
+Block Types for Image Classiﬁcation  
+This continuous assessment is a project -style exercise on modern Convolution 
+Neural Network (CNN) architectures, where you will experience how different 
+residual block types would affect the learning behaviour as well as the 
+performance of the residual network (ResNet). You will work  on a randomly 
+selected subset of Tiny-ImageNet dataset for a 25-class image classiﬁcation task. 
+You are required to implement the learning algorithms and network components 
+using a standard deep learning framework, and provide a comparative analysis 
+supported by quantitative and qualitative evidence. 
+Before you start the assignment, please read through the following guidelines so 
+that you understand the requirements . Please follow the guidelines strictly to 
+avoid unnecessary mark deductions:  
+1. Implement your codes with Python (recommended) using deep learning 
+frameworks like PyTorch or TensorFlow. 
+2. For questions that require you to show your code, make sure your codes are clean 
+and easily readable  (add meaningful comments, comments are markable). 
+Embed your code into your answer with screenshots. 
+3. Your submission should be one single PDF ﬁle with the necessary code and results 
+collated in a single ﬁle. Name your PDF ﬁle strictly to "MATRICULATION 
+NUMBER_YOUR NAME_Project3.pdf". Incorrect submission format or naming will 
+result in a direct 10 points (out of 100) deduction. 
+4. Do submit your project on Canvas before the deadline: 23:59 pm (SGT), 6 April 
+2026. There will be 3 submissions attempts restricted for every student. 
+5. Policy on late submission:  
+• Up to 12 hours late: 80% of your earned points 
+• Up to 1 day late: 50% of your earned points 
+• Up to 2 days late: 30% of your earned points 
+• More than 2 days late: No marks (0%) 
+6. This is an individual project, do NOT share your solutions with others, we have zero 
+tolerance for plagiarism. 
+7. Wherever the randomness is needed, please use the last 3 numbers of your 
+matriculation number as the seed value for randomization (e.g., if your matric. No. 
+is A1234567A, the seed value = 567). 
+8. If you  made use of any AI tools for your project, please include an AI Usage 
+Statement that states the AI tool used and how you have leveraged the AI tool. 
+
+
+===== PAGE 2 TEXT =====
+Part 1: Data Loading and Preprocessing (10%) 
+• Dataset Acquisi tion: Please access the Tiny-ImageNet dataset from 
+htps://www.kaggle.com/datasets/nikhilshingadiya/�nyimagenet200 . It is a 
+200-class dataset containing 64x64 RGB images. The dataset comes pre-
+split into training, validation, and test folders.  
+• Random Class Selection:  Please randomly choose 25 out of 200 classes 
+by “random.sample(range(1, 201), 25)” with a seed value to be the last 3 
+numbers of your matriculation number. Please write a script to identify and 
+isolate the 25 randomly selected classes across the existing train, val and 
+test splits. 
+• Normalization: You must normalize your input images  using the standard 
+ImageNet statistics:  mean = [0.485, 0.456, 0.406], standard deviation  = 
+[0.229, 0.224, 0.225]. 
+Deliverables: Provide a snippet of your data loading and preprocessing code, and 
+a single 5x5 grid visualization displaying one random image from each of your 25 
+selected classes. Each image in the grid must be title d with its corresponding 
+class name/ID. 
+ 
+Part 2: Architectural Implementation (40%) 
+You will build a custom "Mini-ResNet" architecture. While you are not required to 
+implement low-level convolution operations from scratch, you must assemble the 
+network using the basic deep learning framework building blocks (e.g., nn.Conv2d, 
+nn.BatchNorm2d, and nn.Linear in Pytorch).  
+The overall macro -a r c h i t e c t u r e  i s  d e ﬁ n e d  a s  f o l l o w s  t o  s u i t  t h e  64x64 spatial 
+dimensions: 
+• The Stem Network:  
+3x3 Conv (32 ﬁlters, stride 1, zero-padding 1) → BatchNorm → ReLU 
+• Stage 1:  
+2 Residual Blocks (output channel number of each block is 32) 
+• Stage 2:  
+2 Residual Blocks (output channel number of each block is 64, ﬁrst conv 
+layer of the ﬁrst block uses stride 2 for downsampling.) 
+• Stage 3:  
+2 Residual Blocks (output channel number of each block is 128, ﬁrst conv 
+layer of the ﬁrst block uses stride 2 for downsampling.) 
+• Classiﬁcation Head:  
+
+
+===== PAGE 3 TEXT =====
+Global Averal Pooling (GAP) → Fully Connected (FC) Layer  
+Required Modular Variants:  Your code must allow the network to easily swap 
+between these four types  of the R e s i d u a l  B l o c k  u s e d  i n  S t a g e s  1-3 without 
+rewriting the entire network. 
+• Basic Post-Activation:  
+3x3 Conv → BatchNorm → ReLU → 3x3 Conv → BatchNorm → Add → ReLU. 
+• Bottleneck Post-Activation: 
+1x1 Conv  (𝐶𝐶𝑜𝑜𝑜𝑜𝑜𝑜=
+1
+4 𝐶𝐶𝑖𝑖𝑖𝑖)  →  BatchNorm →  ReLU →  3x3 Conv →  BatchNorm 
+→ ReLU → 1x1 Conv (𝐶𝐶𝑜𝑜𝑜𝑜𝑜𝑜= 4𝐶𝐶𝑖𝑖𝑖𝑖)  → BatchNorm → Add → ReLU. 
+• Basic Pre-Activation: 
+BatchNorm → ReLU → 3x3 Conv → BatchNorm → ReLU → 3x3 Conv→ Add. 
+• Bottleneck Pre-Activation: 
+BatchNorm →  ReLU → 1x1 Conv ( 𝐶𝐶𝑜𝑜𝑜𝑜𝑜𝑜=
+1
+4
+𝐶𝐶𝑖𝑖𝑖𝑖)  →  BatchNorm →  ReLU → 
+3x3 Conv → BatchNorm → ReLU → 1x1 Conv (𝐶𝐶𝑜𝑜𝑜𝑜𝑜𝑜= 4𝐶𝐶𝑖𝑖𝑖𝑖) → Add. 
+(Important note on shortcuts: In stage 2 and stage 3, the ﬁrst residual block should 
+use projection shortcut which includes  a 1x1 Conv (with stride 2 ) followed by a 
+BatchNorm layer  to ensure “Add” operation is m athematically valid.  The 
+remaining residual blocks should use identity shortcut.) 
+Deliverables:  
+1. Screenshots of your four modular block implementations: Basic Post -
+Activation, Bottleneck Post-Activation, Basic Pre -Activation, and 
+Bottleneck Pre-Activation. (20%) 
+2. Screenshot of your main MiniResNet class showing how it swaps between 
+the 4 blocks. (15%) 
+3. Screenshot of the model summary for either one block variant to verify 
+output shapes and parameters. (5%) 
+ 
+ 
+Part 3: Ablation Study and Comparative Analysis (50%) 
+You will train all four variants of your Mini-ResNet on the Tiny-ImageNet-25 dataset 
+for a ﬁxed number of epochs (e.g., 30 epochs) using the same hyperparameters 
+(learning rate, batch size, optimizer) on the same device ( GPU highly 
+recommended) 
+Empirical Results (20%): 
+
+
+===== PAGE 4 TEXT =====
+1. Loss and Accuracy Curves: Plot training and validation Loss and accuracy 
+curves for all four models. 
+2. Performance Metrics: Report the ﬁnal validation accuracy, total training 
+time, model size (total  number of learnable parameters), MACs , and 
+inference latency  (average processing time for a single image)  for each 
+variant. 
+3. Screenshots: Provide screenshots of the code used to track these metrics. 
+(Important note for reporting inference latency : To get an accurate  and stable  
+reading, perform 10 "warm -up" iterations before measuring, then record the 
+average time over at least 100 iterations.) 
+Comparative Analysis (Explaining Results) (30%): 
+Based strictly on your empirical results, observe and explain the differences in 
+learning behavior across the four variants. You should address: 
+● Architectural Inﬂuence: How did the choice of block (Basic vs. Bottleneck) 
+and activation strategy (Pre vs. Post) impact the ﬁnal accuracy and 
+computational efficiency (MACs/Latency)? 
+● Learning Dynamics: Analyze your loss and accuracy curves. Did certain 
+variants converge faster, exhibit smoother optimization paths, or show 
+different tendencies toward overﬁtting/underﬁtting? 
+● Synthesis: Summarize which architectural choices proved most effective for 
+this speciﬁc 25-class image classiﬁcation task and why, supported by your 
+recorded data. 

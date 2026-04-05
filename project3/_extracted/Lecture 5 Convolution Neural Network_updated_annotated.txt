@@ -1,0 +1,1384 @@
+# FILE: Lecture 5 Convolution Neural Network_updated_annotated.pdf
+# PAGES: 69
+
+
+===== PAGE 1 TEXT =====
+CG3201: Machine Learning 
+and Deep Learning
+Electrical and Computer Engineering Department
+National University of Singapore
+Lecture 5: Convolution Neural Network  
+Dr. WANG Si
+si.wang@nus.edu.sg 
+1
+
+
+===== PAGE 2 TEXT =====
+2
+Mid-Course Feedback Survey
+Your Feedback Matters — Help Us Improve
+https://canvas.nus.edu.sg/courses/85106/assignments/241675
+
+
+===== PAGE 3 TEXT =====
+OVERVIEW OF PART II (Si’s Part)
+1. CNN & CNN Architectures – Weeks 7&8
+2. RNNs & Transformers – Weeks 9&10
+3. Generative Models– Weeks 11&12
+❑Tentative Schedule
+❑(Credit to)
+Justin Johnson, “Deep Learning for Computer Vision” 
+https://web.eecs.umich.edu/~justincj/teaching/eecs498/FA20
+20/schedule.html
+3
+
+
+===== PAGE 4 TEXT =====
+Lecture 5’s AGENDA 
+➢We will discuss:
+➢Recap of Multilayer Perceptron (MLP)
+➢Key Components in Convolution Neural Network (CNN)
+At the end of this lecture, you should be able to:
+✓Understand Backpropagation
+✓Explain the Key Components in CNNs.
+4
+
+
+===== PAGE 5 TEXT =====
+Recap: AI & ML & DL
+5
+
+
+
+===== PAGE 6 TEXT =====
+Recap: Multilayer Perceptron (MLP)
+6
+
+
+===== PAGE 7 TEXT =====
+Recap: Multilayer Perceptron (MLP)
+➢ Architecture
+𝐖(2) 𝐖(𝐿)
+A MLP is essentially a nested function
+𝐟𝐖𝐱 = 𝝈𝐿 ([1, … 𝝈2 1, 𝝈1𝐱𝑇𝐖(1) 𝐖(2) … ]𝐖(𝐿))
+𝐖(1)
+𝑥0
++1
+𝑥1
+𝑥2
+𝑥𝑑
++1
+ +1
+ +1…
+…
+…
+…
+… … … … …
+Layer 0 Layer 1 Layer 2 Layer L-1 Layer L
+Input 
+Layer
+ Hidden Layers Output 
+Layer
+7
+
+
+
+===== PAGE 8 TEXT =====
+➢Architecture
+Example: A MLP of 2 layers has been constructed as:
+𝐟𝐖𝐱=𝝈1,𝝈𝐱𝑇𝐖1 𝐖2,
+where 𝐱=[1,1,3]𝑇, 𝐖1=𝐖2=
+−1 0
+0 −1
+1 0
+, 𝜎𝑧=max0,z.
+Compute network output 𝐟𝐖𝐱. 
+Recap: Multilayer Perceptron (MLP)
+8
+
+
+===== PAGE 9 TEXT =====
+➢Architecture
+Example: A MLP of 2 layers has been constructed as:
+𝐟𝐖𝐱=𝝈1,𝝈𝐱𝑇𝐖1 𝐖2,
+where 𝐱=[1,1,3]𝑇, 𝐖1=𝐖2=
+−1 0
+0 −1
+1 0
+, 𝜎𝑧=max0,z.
+Compute network output 𝐟𝐖𝐱. 
+𝝈𝐱𝑇𝐖1 =𝝈[1,1,3]
+−1 0
+0 −1
+1 0
+Solution:
+𝝈1,𝝈𝐱𝑇𝐖1 𝐖2 =𝝈[1,2,0]
+−1 0
+0 −1
+1 0
+=𝝈[2,−1] =[2,0]
+=𝝈[−1,−2]=[0,0]
+Recap: Multilayer Perceptron (MLP)
+9
+
+
+===== PAGE 10 TEXT =====
+➢Learning (W)
+1. Random Initialization of W
+2. Forward Pass (fixed W)
+Forward Pass 
+Backward Pass 
+i.Compute output responses
+ii.Compute errors at each output
+3. Backward Pass (update W)
+i.e.,Backpropagation 
+i.Propagate the errors backward
+ii.Update W
+𝐖𝑛𝑒𝑤=𝐖𝑜𝑙𝑑−𝜂∇𝐖𝐽(𝐖𝑜𝑙𝑑)
+In essence, Backpropagation= Gradient Decent!
+Recap: Multilayer Perceptron (MLP)
+10
+The direction and rate of fastest increase
+
+
+===== PAGE 11 TEXT =====
+➢ Learning (W)
+Recap: Multilayer Perceptron (MLP)
+∇𝐖𝐽𝐖𝑜𝑙𝑑 = ෍ ∇𝐖ℒ𝐖𝑜𝑙𝑑
+Problem: Derive ∇𝐖ℒ on paper is very tedious
+Change loss? 
+Change activation 
+function?
+Solution: Computational Graphs
+ e.g., 𝑓𝑥, 𝑦, 𝑧 = (𝑥 + 𝑦) × 𝑧
+where x=-2, y=5, z=-4
+Step 1: Forward pass (compute outputs) 
+q=x+y=3, f=q×z=-12
+Step 2: Backward pass (compute derivatives) 
+Goal:𝜕𝑓
+𝜕𝑥 ,𝜕𝑓
+𝜕𝑦 ,𝜕𝑓
+𝜕𝑧
+i. Compute derivative of each node output 
+with respect to each corresponding input.
+：𝜕𝑓
+𝜕𝑧 ，𝜕𝑓
+𝜕𝑞
+ ：𝜕𝑞
+𝜕𝑥 ，𝜕𝑞
+𝜕𝑦
+ii. Chain rule
+𝜕𝑓
+𝜕𝑥 =𝜕𝑓
+𝜕𝑞
+𝜕𝑞
+𝜕𝑥, 𝜕𝑓
+𝜕𝑦 =𝜕𝑓
+𝜕𝑞
+𝜕𝑞
+𝜕𝑦 ,𝜕𝑓
+𝜕𝑧
+11
+
+
+===== PAGE 12 TEXT =====
+➢ Learning (W)
+Recap: Multilayer Perceptron (MLP)
+∇𝐖𝐽𝐖𝑜𝑙𝑑 = ෍ ∇𝐖ℒ𝐖𝑜𝑙𝑑
+Problem: Derive ∇𝐖ℒ on paper is very tedious
+Change loss? 
+Change activation 
+function?
+Solution: Computational Graphs
+ e.g., 𝑓𝑥, 𝑦, 𝑧 = (𝑥 + 𝑦) × 𝑧
+where x=-2, y=5, z=-4
+𝜕𝑓
+𝜕𝑞
+Upstream 
+gradient
+𝜕𝑞
+𝜕𝑥
+𝜕𝑞
+𝜕𝑦
+Local gradient
+Local 
+gradient
+𝜕𝑓
+𝜕𝑥
+𝜕𝑓
+𝜕𝑦
+Downstream 
+gradient
+12
+Downstream gradient = Upstream gradient x Local gradient
+
+
+===== PAGE 13 TEXT =====
+➢Prediction (Forward Pass)
+Recap: Multilayer Perceptron (MLP)
+Forward Pass 
+Fixed W, Compute 𝐟𝐖𝐱𝒏𝒆𝒘 
+𝐱𝒏𝒆𝒘=
+0.2
+0.3
+0.4
+𝐟𝐖𝐱𝒏𝒆𝒘=
+0.2
+0.1
+0.7
+13
+
+
+===== PAGE 14 TEXT =====
+➢Image Classification
+Recap: Multilayer Perceptron (MLP)
+Image is stored as a matrix in a computer
+14
+
+
+===== PAGE 15 TEXT =====
+➢Image Classification
+Recap: Multilayer Perceptron (MLP)
+28x28
+784 
+inputs
+10 outputs
+No. input 
+features
+No. 
+Classes
+𝑝1
+𝑝2
+⋮𝑝9
+𝑝10
+Feature 
+Extraction
+If hidden layer (𝒍<L):
+If output layer (𝒍 =L):
+𝜎=𝑆𝑜𝑓𝑡𝑚𝑎𝑥
+𝜎=𝑅𝑒𝐿𝑈
+Logits Probs
+15
+
+
+===== PAGE 16 TEXT =====
+➢ Image Classification
+Recap: Multilayer Perceptron (MLP)
+28x28
+784 
+inputs
+10 outputs
+No. input 
+features
+No. 
+Classes
+𝑝1
+𝑝2
+⋮𝑝9
+𝑝10
+Feature 
+Extraction
+Loss Function:
+ℒ𝐖 = − ෍
+𝑘=1
+𝐾
+𝑦𝑘ln(𝑝𝑘)
+Categorical cross-entropy loss
+e.g., An image 𝐱 from class c,
+𝐲 = [0, … , 0,1,0, … 0]
+𝑦𝑐𝑦1
+ 𝑦𝐾
+ℒ𝐖 = −ln(𝑝𝑐)
+Only the target/ground-truth 
+class contributes
+16
+
+
+===== PAGE 17 TEXT =====
+Key Limitations of MLP
+▪Key Limitations in Image Classification
+200x200
+…
+10K neurons in the 
+first layer
+How many 
+input features?
+…
+Flattening
+40000x10000≈400 millions 
+parameters for the first layer
+Loss of Spatial Structure
+Parameter explosion
+17
+
+
+===== PAGE 18 TEXT =====
+Convolution Neural Network 
+(CNN)
+18
+
+
+===== PAGE 19 TEXT =====
+CNNs
+➢Components of A Typical CNN
+19
+
+
+===== PAGE 20 TEXT =====
+CNNs-Convolution Layer
+➢ Convolution
+3x5x5 filter (Weight Matrix)
+Input: 3x32x32 image -> Preserve the spatial structure
+Filters always extend the full depth of the 
+input volume
+Kernel size
+Convolve the filter with the image. i.e., 
+“slide over the image spatially, computing 
+dot products”
+Filter
+Image 
+patch
+∙ = 137e.g.,
+Channels
+20
+
+
+===== PAGE 21 TEXT =====
+CNNs-Convolution Layer
+➢Convolution
+Example: Suppose the input size is 2x3x3 and the filter size is 2x2x2, 
+what is the output after convolving the filter with the input (slide 
+over each spatial location)? 
+Input channel 1: 
+Input channel 2: 
+Filter channel 1: 
+1−11
+1−10
+1 0 1
+Filter channel 2: 
+0 10
+−201
+−200
+21
+1−1
+1−1
+−10
+−10
+
+
+===== PAGE 22 TEXT =====
+CNNs-Convolution Layer
+➢ Convolution
+Example: Suppose the input size is 2x3x3 and the filter size is 2x2x2, 
+what is the output after convolving the filter with the input (slide 
+over each spatial location)? 
+Output:
+22
+6 −4
+7 −2
+Input channel 1: 
+Input channel 2: 
+Filter channel 1: 
+1 −1 1
+1 −1 0
+1 0 1
+Filter channel 2: 
+0 1 0
+−2 0 1
+−2 0 0
+1 −1
+1 −1
+−1 0
+−1 0
+Positive output implies?
+Negative output implies?
+Dot product: similarity measure
+Convolution is fundamentally a pattern-matching operation
+
+
+===== PAGE 23 TEXT =====
+CNNs-Convolution Layer
+➢Convolution
+Filter size: 3x5x5
+Input size: 3x32x32 image
+Output size : ?
+In generalInput size: Cin x W x W
+Filter size: Cin x K x K
+Output size: ?
+23
+
+
+===== PAGE 24 TEXT =====
+1
+CNNs-Convolution Layer
+➢ Convolution
+Input feature map Output feature map
+Receptive Field
+(Each entry computes weighted 
+sum, like a neuron)
+The region of the initial input 
+that a particular neuron “sees” 
+or is influenced by
+𝑥0
++1
+𝑤0(𝑏)
+Shared bias
+MLP CNN
+input 3x32x32 ~
+output 1x28x28 ~
+No. Para? ?
+24
+Shared Parameters: Parameter Reduction!
+
+
+===== PAGE 25 TEXT =====
+CNNs-Convolution Layer
+➢Convolution
+Filter size: 3x5x5
+Input size: 3x32x32 image
+Two 1x28x28 Output 
+Feature Maps
+32
+3
+3x32x32image
+3x5x5filter
+32 convolve (slide) over 
+allspatiallocations
+1
+28
+28
+Consider a second 
+(green) filter:
+1
+25
+
+
+===== PAGE 26 TEXT =====
+Six 1x28x28 Output 
+Feature Maps
+CNNs-Convolution Layer
+➢ Each Conv Layer is Made up of Filters and Biases
+Filter size: 3x5x5
+Input size: 3x32x32 image
+Filter No.: 6
+32
+6 filters, each 3x5x5
+32
+3
+Convolution 
+Layer
+6x3x5x5 
+filter
+How many biases?
+6
+28
+28
+Input channel number
+of this conv layer
+Output channel number
+of this conv layer
+26
+
+
+===== PAGE 27 TEXT =====
+2
+ 
+Outputs
+CNNs-Convolution Layer
+Filter size: 3x5x5, Filter No.: 6
+Input size: 3x32x32 image
+32
+6 filters, each 3x5x5
+32
+3
+Convolution 
+Layer
+6x3x5x5 
+filter 6
+28
+28
+6-dim bias vector
+Batch size: 
+2
+3
+2
+ 
+Images
+2x3x32x32 2x6x28x28
+6
+➢ Each Conv Layer is Made up of Filters and Biases
+27
+
+
+===== PAGE 28 TEXT =====
+CNNs-Convolution Layer
+➢ Multiple Conv Layers
+W1: 6x3x5x5
+b1: 6
+32
+28
+3
+28
+6
+24
+10
+24
+….
+W2: 10x6x5x5
+b2: 10
+Conv
+W3: 12x10x5x5
+b3: 12
+ReLU
+ Conv
+ReLU
+ Conv
+ReLU
+Input:
+N x 3 x 32 x 32
+First hidden layer: 
+N x 6 x 28 x 28
+Second hidden layer: 
+N x 10 x 24 x 24
+32
+Activation Maps Activation Maps
+Problem: Activation maps “shrink” with each conv layer!
+28
+
+
+===== PAGE 29 TEXT =====
+CNNs-Convolution Layer
+➢ Zero-Padding: Mitigate Shrinkage of Spatial 
+Dimensions 
+Add zeros around the input
+(Only show the spatial dimensions for visualization)
+Original Input With the size of zero-padding 
+P=1
+ With the size of zero-padding 
+P=2
+Cin x 7 x 7
+Assume filter size: Cin x 3 x 3
+Output size 
+(spatially):
+29
+
+
+===== PAGE 30 TEXT =====
+CNNs-Convolution Layer
+➢ Zero-Padding: Mitigate Shrinkage of Spatial 
+Dimensions 
+Add zeros around the input
+(Only show the spatial dimensions for visualization)
+Original Input
+Input size: Cin x W x W
+Filter size: Cin x K x K
+Zero-padding size: P
+Output size (Spatially):?
+Zero-padded Input
+✓ Very common Practice: 
+Same Padding
+The output spatial dimension 
+is the same as the original 
+input spatial dimension
+formula for P?
+30
+
+
+===== PAGE 31 TEXT =====
+CNNs-Convolution Layer
+➢ A Closer Look at Receptive Fields
+Receptive field size (Spatially) for each output of the first Conv layer:
+(Only show the spatial dimensions for visualization)
+Input size: Cin x W x W Kernel size: K x K 
+K x K 
+31
+e.g., 
+W=7,
+K=3
+
+
+===== PAGE 32 TEXT =====
+CNNs-Convolution Layer
+Receptive field size （Spatially) for each output of the second Conv layer:
+Input size: Cin x W x W 
+Output
+➢ A Closer Look at Receptive Fields
+(2K-1) x (2K-1) 
+(Only show the spatial dimensions for visualization)
+Kernel size: K x K 
+e.g., W=7, K=3
+32
+
+
+===== PAGE 33 TEXT =====
+CNNs-Convolution Layer
+Receptive field size (Spatially) for each output of L-th convolution layer?
+➢ A Closer Look at Receptive Fields
+Input size: Cin x W x W 
+…
+Kernel size: K x K 
+Original Input
+e.g., W=7, K=3
+33
+
+
+===== PAGE 34 TEXT =====
+CNNs-Convolution Layer
+Receptive field size (Spatially) for each output of L-th convolution layer?
+➢ A Closer Look at Receptive Fields
+Input size: Cin x W x W 
+RF1-K+1=1
+RF1=K
+RF2-K+1= RF1
+RF2=K + (K-1)
+RF3-K+1=RF2
+RF3= K + (K-1) + (K-1)
+…
+Each successive convolution adds K-1 to the receptive field size
+…
+Kernel size: K x K 
+34
+
+
+===== PAGE 35 TEXT =====
+CNNs-Convolution Layer
+➢ A Closer Look at Receptive Fields
+Input size: Cin x W x W 
+In order for each output neuron to “see” the whole image, L=?
+Kernel size: K x K 
+Why do we care about if each output neuron “sees” the whole input image?
+Problem: For large input images, we need many layers for each 
+output neuron to “see” the whole input image!
+Solution: Downsample inside CNN!
+35
+
+
+===== PAGE 36 TEXT =====
+CNNs-Convolution Layer
+➢ Solution 1 for Downsampling: Strided Convolution
+Input size: Cin x W x W 
+Kernel size: K x K 
+The step size of the filter’s 
+movement
+Stride S=1
+(Only show the spatial dimensions for visualization)
+Input feature map
+Output feature map
+Stride S=2
+Input feature map
+Output feature 
+map
+Zero-Padding size: P
+Stride size: S Output size (Spatially): ?
+36
+
+
+===== PAGE 37 TEXT =====
+CNNs-Convolution Layer
+➢ Solution 1 for Downsampling: Strided Convolution
+Stride S=1, need 3 convolution layers to “see” the whole input image
+Stride S=2, need 2 convolution layers to “see” the whole input image
+OutputInput
+Reduced number of layers 
+needed to “see” the whole 
+input image
+37
+
+
+===== PAGE 38 TEXT =====
+CNNs-Convolution Layer
+➢Solution 1 for Downsampling: Strided Convolution
+Each successive convolution adds ? to the receptive field size
+Stride: S, Kernel Size: K, Conv layer#: L
+38
+
+
+===== PAGE 39 TEXT =====
+CNNs-Convolution Layer
+➢ Solution 1 for Downsampling: Strided Convolution
+Each successive convolution adds ? to the receptive field size
+1 layer: (RF1-K)/S + 1 = 1 RF1 = K
+2 layers: (RF2-K)/S + 1 = RF1 RF2 = (K-1)S + K
+3 layers: (RF3-K)/S + 1 = RF2 RF3 = S((K-1)S+K-1)+K=(K-1)S2+(K-1)S+K
+…
+L layers: (RFL-K)/S + 1 = RFL-1 RFL =(K-1)SL-1+ RFL-1
+Stride: S, Kernel Size: K, Conv layer#: L
+39
+
+
+===== PAGE 40 TEXT =====
+CNNs-Convolution Layer
+➢ Solution 1 for Downsampling: Strided Convolution
+Practice Question 1
+Input volume: 3x32x32
+10 filters, each has a kernel size of 3x3
+Stride 3, Zero-padding 2
+Output volume size: ?
+Number of learnable parameters (including biases): ?
+40
+
+
+===== PAGE 41 TEXT =====
+CNNs-Convolution Layer
+➢Solution 1 for Downsampling: Strided Convolution
+Input volume: 3x32x32
+10 filters, each has a kernel size of 3x3
+Stride 3, Zero-padding 2
+Output volume size: ?
+Number of learnable parameters (including biases): ?
+41
+(W+2P-K)/S +1=(32+2x2-3)/3+1=12 spatially, so 10 x12x12
+10x(3x3x3+1)=280
+Practice Question 1
+
+
+===== PAGE 42 TEXT =====
+CNNs-Convolution Layer
+➢Solution 1 for Downsampling: Strided Convolution
+Practice Question 2
+Input volume: 2x2x2 one 3x3 filter with stride 1, pad 1
+Input channel 1: 
+12
+34
+Input channel 2: 
+12
+21
+Filter channel 1: 
+101
+010
+101
+Filter channel 2: 
+010
+101
+010
+Output?
+42
+
+
+===== PAGE 43 TEXT =====
+CNNs-Convolution Layer
+➢ Solution 1 for Downsampling: Strided Convolution
+Practice Question 2
+Input volume: 2x2x2, one 3x3 filter with stride 1, pad 1
+Input channel 1: 
+1 2
+3 4
+Input channel 2: 
+1 2
+2 1
+Filter channel 1: 
+1 0 1
+0 1 0
+1 0 1
+Filter channel 2: 
+0 1 0
+1 0 1
+0 1 0
+Output?
+Step 1: Zero-padding
+Input channel 1: 
+Input channel 2: 
+0 0
+0 1
+0 0
+2 0
+0 3
+0 0
+4 0
+0 0
+0 0
+0 1
+0 0
+2 0
+0 2
+0 0
+1 0
+0 0
+O(1,1)= 
+0 0 0
+0 1 2
+0 3 4
+⋅
+1 0 1
+0 1 0
+1 0 1
++
+0 0 0
+0 1 2
+0 2 1
+⋅
+0 1 0
+1 0 1
+0 1 0
+= 5 + 4 = 9
+Step 2: Convolution
+O(1,2)= 
+0 0 0
+1 2 0
+3 4 0
+⋅
+1 0 1
+0 1 0
+1 0 1
++
+0 0 0
+1 2 0
+2 1 0
+⋅
+0 1 0
+1 0 1
+0 1 0
+= 5 + 2 = 7
+O(2,2)= 
+1 2 0
+3 4 0
+0 0 0
+⋅
+1 0 1
+0 1 0
+1 0 1
++
+1 2 0
+2 1 0
+0 0 0
+⋅
+0 1 0
+1 0 1
+0 1 0
+= 5 + 4 = 9
+O(2,1)= 
+0 1 2
+0 3 4
+0 0 0
+⋅
+1 0 1
+0 1 0
+1 0 1
++
+0 1 2
+0 2 1
+0 0 0
+⋅
+0 1 0
+1 0 1
+0 1 0
+= 5 + 2 = 7
+9 7
+7 9
+Solution:
+43
+
+
+===== PAGE 44 TEXT =====
+CNNs-Convolution Layer
+➢Visualization of Activation Maps
+44
+
+
+
+===== PAGE 45 TEXT =====
+CNNs-Convolution Layer
+➢ Other Types of Convolution
+So far: 2D Convolution
+Input: Cin x H x W
+Weight Matrix: Cout x Cin x KH x KW 
+▪ 1D Convolution
+Input: Cin x W
+Weight Matrix: Cout x Cin x KW 
+Cin
+W
+H Cin
+W
+Output: Cout x H’ x W’ Output: Cout x W’
+e.g., one input: 2x5, one filter: 2x3, stride: 2, padding: 1
+Input channel 1: [1,2,3,4,5]
+Input channel 2:[0,1,2,1,0]
+Filter channel 1: [1,0,1]
+input channel 2:[-1,1,-1]
+Output size? Output?
+45
+
+
+===== PAGE 46 TEXT =====
+CNNs-Convolution Layer
+➢Other Types of Convolution
+So far: 2D Convolution
+Input: Cin x H x W
+Weight Matrix: Cout x Cin x KH x KW 
+▪1D Convolution
+Input: Cin x W
+Weight Matrix: Cout x Cin x KW 
+Cin
+W
+H Cin
+W
+Output: Cout x H’ x W’ Output: Cout x W’
+e.g., one input: 2x5, one filter: 2x3, stride: 2, padding: 1
+Input channel 1: [1,2,3,4,5]
+Input channel 2:[0,1,2,1,0]
+Filter channel 1: [1,0,1]
+input channel 2:[-1,1,-1]
+Step 1: Zero-padding
+Solution:
+Input channel 1: [0,1,2,3,4,5,0]
+Input channel 2:[0,0,1,2,1,0,0]
+Step 2: Convolution
+O(1)=[0,1,2]⋅[1,0,1]+ [0,0,1]⋅[-1,1,-1]=1
+O(2)=[2,3,4]⋅[1,0,1]+ [1,2,1]⋅[-1,1,-1]=6
+O(3)=[4,5,0]⋅[1,0,1]+ [1,0,0]⋅[-1,1,-1]=3
+Output=[1,6,3]
+46
+
+
+===== PAGE 47 TEXT =====
+CNNs-Convolution Layer
+➢ Other Types of Convolution
+So far: 2D Convolution
+Input: Cin x H x W
+Weight Matrix: Cout x Cin x KH x KW 
+▪ 1D Convolution
+Input: Cin x W
+Weight Matrix: Cout x Cin x KW 
+Cin
+W
+H Cin
+W
+Output: Cout x H’ x W’ Output: Cout x W’
+Extracting local patterns from 
+sequential or time-dependent data
+47
+
+
+===== PAGE 48 TEXT =====
+CNNs-Convolution Layer
+➢ Other Types of Convolution
+So far: 2D Convolution
+Input: Cin x H x W
+Weight Matrix: Cout x Cin x KH x KW 
+▪ 3D Convolution
+Input: Cin x D x H x W
+Weight Matrix: Cout x Cin x KD x KH x KW
+Cin
+W
+H
+W D
+HCin-dim vector at each 
+point in the volume
+Output: Cout x H’ x W’ Output: Cout x D’ x H’ x W’
+Track how a spatial pattern changes over 
+depth or time (spatiotemporal data)
+e.g.,
+48
+
+
+===== PAGE 49 TEXT =====
+CNNs
+➢Components of A Typical CNN
+49
+
+
+===== PAGE 50 TEXT =====
+20
+CNNs-Pooling Layer
+➢ Solution 2 for Downsampling
+Hyperparameters:
+Kernel Size K
+Stride S
+Pooling function
+Single Channel Slice
+2x2 pooling, stride 2
+Max pooling Average pooling
+Global Max
+65
+Global Average
+22.25
+64 x 224 x 224
+64 x 112 x 112
+Downsample each activation map independently
+50
+
+
+===== PAGE 51 TEXT =====
+CNNs
+➢Components of A Typical CNN
+51
+
+
+===== PAGE 52 TEXT =====
+CNNs-Fully Connected Layer
+➢ Every neuron in a layer is connected to all the 
+neurons in the previous layer
+Activation Function: ReLU
+52
+
+
+===== PAGE 53 TEXT =====
+CNNs
+➢Components of A Typical CNN
+53
+
+
+===== PAGE 54 TEXT =====
+CNNs-Normalization
+➢ Batch Normalization (BN)
+Ioffe and Szegedy,“Batch normalization: Accelerating deep network training by reducing internal covariate shift” ,ICML 2015
+Idea: “Normalize” the outputs of a layer so they have 
+zero mean and unit variance (over the batch)
+Input to BN: 𝐎 ∈ ℝ𝑁×𝐷
+N
+D
+𝐎
+𝜇𝑗 =1
+𝑁 ෍
+𝑖=1
+𝑁
+𝑜𝑖,𝑗 Per-feature mean
+𝜎𝑗
+2 =1
+𝑁 ෍
+𝑖=1
+𝑁
+(𝑜𝑖,𝑗 − 𝜇𝑗)2 Per-feature variance
+ො𝑜𝑖,𝑗 =𝑜𝑖,𝑗 − 𝜇𝑗
+𝜎𝑗
+2 + 𝜀
+Numerical stability
+𝛍: D-dim vector
+𝝈: D-dim vector
+෡𝐎 :Normalized 𝐎, ∈ ℝ𝑁×𝐷
+Why?
+54
+
+
+===== PAGE 55 TEXT =====
+CNNs-Normalization
+➢ Batch Normalization (BN)
+Ioffe and Szegedy,“Batch normalization: Accelerating deep network training by reducing internal covariate shift”,ICML 2015
+Why BN? Help reduce “internal covariate shift”
+The distribution of inputs to a layer changes during training, 
+because the parameters of the previous layers change.
+Layer 1          →          Layer 2          →          Layer 3
+e.g, Consider a 3-layer network
+𝐖𝑜𝑙𝑑
+(1) 𝐖𝑜𝑙𝑑
+(2) 𝐖𝑜𝑙𝑑
+(3)
+Forward Pass:
+𝐎𝑜𝑙𝑑
+(1)
+𝐎𝑜𝑙𝑑
+(2) 𝐎𝑜𝑙𝑑
+(3)
+𝐖𝑛𝑒𝑤
+(1)  ← 𝑓(𝐖𝑜𝑙𝑑
+1 , 𝐄1 , 𝐗)
+55
+output
+𝐄(3) ← 𝑓(𝐎𝑜𝑙𝑑
+(3) , 𝐘)𝐄2 ← 𝑓(𝐄3 , 𝐖𝑜𝑙𝑑
+3 , 𝐎𝑜𝑙𝑑
+2 )𝐄1 ← 𝑓(𝐄2 , 𝐖𝑜𝑙𝑑
+2 , 𝐎𝑜𝑙𝑑
+1 )
+Backward Pass:
+error
+update 𝐖𝑛𝑒𝑤
+(2)  ← 𝑓(𝐖𝑜𝑙𝑑
+2 , 𝐄2 , 𝐎𝑜𝑙𝑑
+(1) ) 𝐖𝑛𝑒𝑤
+(3)  ← 𝑓(𝐖𝑜𝑙𝑑
+3 , 𝐄3 , 𝐎𝑜𝑙𝑑
+(2) )
+Forward Pass: 𝐎𝑁𝐸𝑊
+(1) 𝐎𝑁𝐸𝑊
+(2) 𝐎𝑁𝐸𝑊
+(3)
+
+
+===== PAGE 56 TEXT =====
+CNNs-Normalization
+➢Batch Normalization (BN)
+Ioffeand Szegedy,“Batchnormalization:Acceleratingdeep network trainingbyreducinginternalcovariate shift” ,ICML 2015
+Idea: “Normalize” the outputs of a layer so they have 
+zero mean and unit variance (over the batch)
+Problem?
+56
+
+
+===== PAGE 57 TEXT =====
+CNNs-Normalization
+➢ Batch Normalization (BN)
+Ioffe and Szegedy,“Batch normalization: Accelerating deep network training by reducing internal covariate shift” ,ICML 2015
+Idea: “Normalize” the outputs of a layer so they have 
+zero mean and unit variance (over the batch)
+May distort the representation the network actually wants
+Solution: Add learnable scale 𝜸 and shift 𝜷!
+(Different layers, different features may have different range for optimal learning)
+57
+
+
+===== PAGE 58 TEXT =====
+CNNs-Normalization
+➢ Batch Normalization (BN)
+Ioffe and Szegedy,“Batch normalization: Accelerating deep network training by reducing internal covariate shift” ,ICML 2015
+Idea: “Normalize” the outputs of a layer so they have 
+zero mean and unit variance (over the batch)
+Input to BN: 𝐎 ∈ ℝ𝑁×𝐷
+𝜇𝑗 =1
+𝑁 ෍
+𝑖=1
+𝑁
+𝑜𝑖,𝑗 Per-feature mean
+𝜎𝑗
+2 =1
+𝑁 ෍
+𝑖=1
+𝑁
+(𝑜𝑖,𝑗 − 𝜇𝑗)2 Per-feature variance
+ො𝑜𝑖,𝑗 =𝑜𝑖,𝑗 − 𝜇𝑗
+𝜎𝑗
+2 + 𝜀
+𝛍: D-dim vector
+𝝈: D-dim vector
+෡𝐎 :Normalized 𝐎, ∈ ℝ𝑁×𝐷
+learnable scale 𝛄 and 
+shift 𝛃: 𝛄, 𝛃 ∈ ℝ𝐷
+N
+D
+𝐎
+෤𝑜𝑖,𝑗 = 𝛾𝑗 ො𝑜𝑖,𝑗 + 𝛽𝑗
+Problem: Estimates depend on minibatch; 
+can’t do this at test-time!
+෩𝐎 ∈ ℝ𝑁×𝐷
+58
+
+
+===== PAGE 59 TEXT =====
+CNNs-Normalization
+➢ Batch Normalization (BN)
+Ioffe and Szegedy,“Batch normalization: Accelerating deep network training by reducing internal covariate shift” ,ICML 2015
+Input to BN: 𝐎 ∈ ℝ𝑁×𝐷
+𝜇𝑗 = 𝐴𝑔𝑔𝑟𝑒𝑔𝑎𝑡𝑒𝑑 𝑚𝑒𝑎𝑛 𝑑𝑢𝑟𝑖𝑛𝑔 𝑡𝑟𝑎𝑖𝑛𝑖𝑛𝑔
+𝜎𝑗
+2 = 𝐴𝑔𝑔𝑟𝑒𝑔𝑎𝑡𝑒𝑑 𝑣𝑎𝑟𝑖𝑎𝑛𝑐𝑒 𝑑𝑢𝑟𝑖𝑛𝑔 𝑡𝑟𝑎𝑖𝑛𝑖𝑛𝑔
+ො𝑜𝑖,𝑗 =𝑜𝑖,𝑗 − 𝜇𝑗
+𝜎𝑗
+2 + 𝜀
+N
+D
+𝐎
+෤𝑜𝑖,𝑗 = 𝛾𝑗
+∗ ො𝑜𝑖,𝑗 + 𝛽𝑗
+∗
+TEST TIME:
+59
+
+
+===== PAGE 60 TEXT =====
+CNNs-Normalization
+➢Batch Normalization (BN)
+Ioffeand Szegedy,“Batchnormalization:Acceleratingdeep network trainingbyreducinginternalcovariate shift” ,ICML 2015
+Example:Batch size (N)=3, D (No. features)=2,𝐎=
+12
+34
+56Scale 𝛄=[2,3], Shift 𝛃=1,2, 
+What is the output after batch normalization?
+60
+
+
+===== PAGE 61 TEXT =====
+CNNs-Normalization
+➢ Batch Normalization (BN)
+Ioffe and Szegedy,“Batch normalization: Accelerating deep network training by reducing internal covariate shift” ,ICML 2015
+Example: Batch size (N)=3, D (No. features)=2,𝐎 =
+1 2
+3 4
+5 6Scale 𝛄=[2,3], Shift 𝛃 =1, 2 , 
+What is the output after batch normalization?
+61
+Step 1: Compute per-feature mean and standard deviation
+𝛍=[3,4], 𝝈=[1.63, 1.63]
+Step 2: Compute ෡𝐎 (Normalized 𝐎)
+෡𝐎 =
+1 − 3
+1.63
+2 − 4
+1.63
+3 − 3
+1.63
+4 − 4
+1.63
+5 − 3
+1.63
+6 − 4
+1.63
+=
+−1.23 −1.23
+0 0
+1.23 1.23
+Step 3: Scaling & Shifting
+෩𝐎 =
+−1.23 × 2 + 1 −1.23 × 3 + 2
+0 × 2 + 1 0 × 3 + 2
+1.23 × 2 + 1 1.23 × 3 + 2
+=
+−1.46 −1.69
+1 2
+3.46 5.69
+
+
+===== PAGE 62 TEXT =====
+CNNs-Normalization
+➢ Batch Normalization (BN)
+Ioffe and Szegedy,“Batch normalization: Accelerating deep network training by reducing internal covariate shift” ,ICML 2015
+✓ For FC layers
+O∶ 𝑁 × 𝐷
+Normalize
+𝜇, 𝜎 ∶ 1 × 𝐷
+𝛾, 𝛽 ∶ 1 × 𝐷
+෥𝐨 = 𝛄 ∗(𝐨 − 𝛍)
+𝛔 + 𝜀 + 𝛃
+✓ For Conv layers
+O: 𝑁 × 𝐶 × 𝐻 × 𝑊
+𝛍, 𝛔 ∶ 1 × 𝐶 × 1 × 1
+Normalize
+𝛄, 𝛃 ∶ 1 × 𝐶 × 1 × 1
+෥𝐨 = 𝛄 ∗(𝐨 − 𝛍)
+𝛔 + 𝜀 + 𝛃
+(2D Conv)
+62
+
+
+===== PAGE 63 TEXT =====
+CNNs-Normalization
+➢Batch Normalization (BN)
+Ioffeand Szegedy,“Batchnormalization:Acceleratingdeep network trainingbyreducinginternalcovariate shift” ,ICML 2015
+✓For Conv layers
+O:𝑁×𝐶×𝐻×𝑊
+𝛍,𝛔∶1×𝐶×1×1
+Normalize
+𝛄,𝛃∶1×𝐶×1×1
+෥𝐨=𝛄∗(𝐨−𝛍)
+𝛔+𝜀+𝛃
+(2D Conv)
+Example:Batch size (N) = 2, 
+Input to BN = 2 x 2 x 2,
+Image 1:Channel 1: 22
+22
+Channel 2: 1010
+1010
+Image 2:Channel 1: 66
+66
+Channel 2: 2020
+2020
+𝛄=[2,10], 𝛃 = [5, 0] 
+What is the output after batch 
+normalization?
+63
+
+
+===== PAGE 64 TEXT =====
+CNNs-Normalization
+➢ Batch Normalization (BN)
+Ioffe and Szegedy,“Batch normalization: Accelerating deep network training by reducing internal covariate shift” ,ICML 2015
+Example: Batch size (N) = 2, 
+Input to BN = 2 x 2 x 2,
+Image 1:Channel 1: 2 2
+2 2
+Channel 2: 10 10
+10 10
+Image 2:Channel 1: 6 6
+6 6
+Channel 2: 20 20
+20 20
+𝛄 = [2, 10], 𝛃 = [5, 0] 
+What is the output after batch 
+normalization?
+𝜇1 =(2 + 6) × 4
+8 = 4
+𝜇2 =(10 + 20) × 4
+8 = 15
+𝜎1 = 2, 𝜎2 = 5
+Step 2: Normalize
+Image 1:Channel 1: −1 −1
+−1 −1
+Channel 2: −1 −1
+−1 −1
+Image 2:Channel 1: 1 1
+1 1
+Channel 2: 1 1
+1 1
+64
+Step 1: Compute per-feature 
+mean and standard deviation
+
+
+===== PAGE 65 TEXT =====
+CNNs-Normalization
+➢Batch Normalization (BN)
+Ioffeand Szegedy,“Batchnormalization:Acceleratingdeep network trainingbyreducinginternalcovariate shift” ,ICML 2015
+Example:Batch size (N) = 2, 
+Input to BN = 2 x 2 x 2,
+Image 1:Channel 1: 22
+22
+Channel 2: 1010
+1010
+Image 2:Channel 1: 66
+66
+Channel 2: 2020
+2020
+𝛄=[2,10], 𝛃 = [5, 0] 
+What is the output after batch 
+normalization?
+Step 3: Scale & Shift:
+Image 1:Channel 1: 33
+33
+Channel 2: −10−10
+−10−10
+Image 2:Channel 1: 77
+77
+Channel 2: 1010
+1010
+65
+Step 2: Normalize
+Image 1:Channel 1: −1−1
+−1−1
+Channel 2: −1−1
+−1−1
+Image 2:Channel 1: 11
+11
+Channel 2: 11
+11
+
+
+===== PAGE 66 TEXT =====
+CNNs-Normalization
+➢Batch Normalization (BN)
+Ioffeand Szegedy,“Batchnormalization:Acceleratingdeep network trainingbyreducinginternalcovariate shift” ,ICML 2015
+✓For 1D Conv layers
+෥𝐨=𝛄∗(𝐨−𝛍)
+𝛔+𝜀+𝛃
+✓For 3D Conv layers
+O:𝑁×𝐶×𝐷×𝐻×𝑊
+𝛍,𝛔∶1×𝐶× 1 × 1 ×1
+Normalize
+𝛄,𝛃∶1×𝐶× 1 × 1 ×1
+෥𝐨=𝛄∗(𝐨−𝛍)
+𝛔+𝜀+𝛃
+O:𝑁×𝐶×𝑊
+𝛍,𝛔∶1×𝐶×1
+Normalize
+𝛄,𝛃∶1×𝐶×1
+66
+
+
+===== PAGE 67 TEXT =====
+THE END
+67
+
+
+===== PAGE 68 TEXT =====
+
+
+
+===== PAGE 69 TEXT =====

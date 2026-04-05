@@ -1,0 +1,1705 @@
+# FILE: Lecture 6 CNN Architectures_updated_annotated.pdf
+# PAGES: 65
+
+
+===== PAGE 1 TEXT =====
+CG3201: Machine Learning 
+and Deep Learning
+Electrical and Computer Engineering Department
+National University of Singapore
+Dr. WANG Si
+si.wang@nus.edu.sg 
+Lecture 6: CNN Architectures
+1
+
+
+===== PAGE 2 TEXT =====
+OVERVIEW OF PART II (Si’s Part)
+1. CNN & CNN Architectures – Weeks 7-9
+2. RNNs & Transformers – Weeks 10-12
+3. Generative Models– Week 13
+❑Tentative Schedule
+❑(Credit to)
+Justin Johnson, “Deep Learning for Computer Vision” 
+https://web.eecs.umich.edu/~justincj/teaching/eecs498/FA20
+20/schedule.html
+2
+
+
+===== PAGE 3 TEXT =====
+Lecture 6’s AGENDA 
+➢We will discuss:
+➢Classic Architectures
+➢Inception Networks
+➢Residual Networks
+At the end of this lecture, you should be able to:
+✓Differentiate the design principles and evolution of classic and 
+modern networks (e.g., AlexNet, VGG, Inception, ResNet)
+✓Compute feature map dimensions, parameter counts, 
+memory usage, and MAC operations for individual layers.
+3
+
+
+===== PAGE 4 TEXT =====
+Recap: CNN Components
+4
+
+
+===== PAGE 5 TEXT =====
+Classic Architecture
+5
+
+
+===== PAGE 6 TEXT =====
+Classic Architecture
+➢ [Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪ LeNet-5, LeCun et al., 1998
+(Handwritten Digit Recognition)
+6
+
+
+===== PAGE 7 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+Layer
+Input Size Hyperparameters Output Size Memory (KB) Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2
+(Handwritten Digit Recognition)
+▪LeNet-5, LeCun et al., 1998
+Output size: Cout = ?, W’=(W+2P-K)/S+1
+Memory used for output: No. output elements x Bytes per element /1024
+No. Parameters (including bias): No. weights + No. bias
+No. MACs (multiply+add): No. output elements x MACs per element
+𝑎←𝑎+(𝑏×𝑐)
+7
+
+
+===== PAGE 8 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+=500
+▪LeNet-5, LeCun et al., 1998
+Layer
+Input Size Hyperparameters Output Size Memory (KB) Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2 20 28 61.25 0.52 0.39
+Output size: Cout = No. Filters, W’=(W+2P-K)/S+1
+Memory used for output: No. output elements x Bytes per element /1024
+Cout x H’ x W’=15680 =4 (for 32-bit floating point)
+No. Parameters (including bias): No. weights + No. bias
+Cout xCinx K x K Cout
+=20
+No. MACs (multiply+add): No. output elements x MACs per element
+=15680 Cinx K x K=25
+8
+
+
+===== PAGE 9 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+(Handwritten Digit Recognition)
+▪LeNet-5, LeCun et al., 1998
+Layer
+Input Size Hyperparameters Output Size Memory (KB)Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2
+ReLU
+MaxPool 2 2
+9
+
+
+===== PAGE 10 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪LeNet-5, LeCun et al., 1998
+Layer
+Input Size Hyperparameters Output Size Memory (KB)Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2 20 28 61.25 0.52 0.39
+ReLU 20 28 N.A. N.A. N.A. N.A. 20 28 61.25 0 0
+MaxPool 20 28 N.A. 2 2 0 20 14 15.31 0 0
+10
+
+
+===== PAGE 11 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+(Handwritten Digit Recognition)
+▪LeNet-5, LeCun et al., 1998
+Layer
+Input Size Hyperparameters Output Size Memory (KB)Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2
+ReLU
+MaxPool 2 2
+Conv 50 5 1 2
+ReLU
+Output size: W’=(W+2P-K)/S+1
+Memory used for output: No. output elements x Bytes per element /1024
+No. Parameters (including bias): No. weights + No. bias
+No. MACs (multiply+add): No. output elements x MACs per element
+11
+
+
+===== PAGE 12 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪LeNet-5, LeCun et al., 1998
+Layer
+Input Size Hyperparameters Output Size Memory (KB)Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2 20 28 61.25 0.52 0.39
+ReLU 20 28 N.A. N.A. N.A. N.A. 20 28 61.25 0 0
+MaxPool 20 28 N.A. 2 2 0 20 14 15.31 0 0
+Conv 20 14 50 5 1 2 50 14 38.28 25.05 4.9
+ReLU 50 14 N.A. N.A. N.A. N.A. 50 14 38.28 0 0
+12
+
+
+===== PAGE 13 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+(Handwritten Digit Recognition)
+▪LeNet-5, LeCun et al., 1998
+Layer
+Input Size Hyperparameters Output Size Memory (KB)Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2
+ReLU
+MaxPool 2 2
+Conv 50 5 1 2
+ReLU
+MaxPool 2 2
+13
+
+
+===== PAGE 14 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪LeNet-5, LeCun et al., 1998
+Layer
+Input Size Hyperparameters Output Size Memory (KB)Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2 20 28 61.25 0.52 0.39
+ReLU 20 28 N.A. N.A. N.A. N.A. 20 28 61.25 0 0
+MaxPool 20 28 N.A. 2 2 0 20 14 15.31 0 0
+Conv 20 14 50 5 1 2 50 14 38.28 25.05 4.9
+ReLU 50 14 N.A. N.A. N.A. N.A. 50 14 38.28 0 0
+MaxPool 50 14 N.A. 2 2 0 50 7 9.57 0 0
+14
+
+
+===== PAGE 15 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+(Handwritten Digit Recognition)
+▪LeNet-5, LeCun et al., 1998
+Layer
+Input Size Hyperparameters Output Size Memory (KB)Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2
+ReLU
+MaxPool 2 2
+Conv 50 5 1 2
+ReLU
+MaxPool 2 2
+Flatten
+15
+
+
+===== PAGE 16 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪LeNet-5, LeCun et al., 1998
+Layer
+Input Size Hyperparameters Output Size Memory (KB) Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2 20 28 61.25 0.52 0.39
+ReLU 20 28 N.A. N.A. N.A. N.A. 20 28 61.25 0 0
+MaxPool 20 28 N.A. 2 2 0 20 14 15.31 0 0
+Conv 20 14 50 5 1 2 50 14 38.28 25.05 4.9
+ReLU 50 14 N.A. N.A. N.A. N.A. 50 14 38.28 0 0
+MaxPool 50 14 N.A. 2 2 0 50 7 9.57 0 0
+Flatten 50 7 N.A. N.A. N.A. N.A.2450 N.A. 9.57 0 0
+16
+
+
+===== PAGE 17 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+(Handwritten Digit Recognition)
+▪LeNet-5, LeCun et al., 1998
+Layer
+Input Size Hyperparameters Output Size Memory (KB) Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2
+ReLU
+MaxPool 2 2
+Conv 50 5 1 2
+ReLU
+MaxPool 2 2
+Flatten
+FC 500
+ReLU
+17
+
+
+===== PAGE 18 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪LeNet-5, LeCun et al., 1998
+Layer
+Input Size Hyperparameters Output Size Memory (KB)Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2 20 28 61.25 0.52 0.39
+ReLU 20 28 N.A. N.A. N.A. N.A. 20 28 61.25 0 0
+MaxPool 20 28 N.A. 2 2 0 20 14 15.31 0 0
+Conv 20 14 50 5 1 2 50 14 38.28 25.05 4.9
+ReLU 50 14 N.A. N.A. N.A. N.A. 50 14 38.28 0 0
+MaxPool 50 14 N.A. 2 2 0 50 7 9.57 0 0
+Flatten 50 7 N.A. N.A. N.A. N.A.2450N.A. 9.57 0 0
+FC 2450N.A. 500 N.A. N.A. N.A.500 N.A. 1.95 1225 1.23
+ReLU 500N.A. N.A. N.A. N.A. N.A.500 N.A. 1.95 0 0
+18
+
+
+===== PAGE 19 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+(Handwritten Digit Recognition)
+▪LeNet-5, LeCun et al., 1998
+Layer
+Input Size Hyperparameters Output Size Memory (KB)Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2
+ReLU
+MaxPool 2 2
+Conv 50 5 1 2
+ReLU
+MaxPool 2 2
+Flatten
+FC 500
+ReLU
+FC
+Softmax
+19
+
+
+===== PAGE 20 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪LeNet-5, LeCun et al., 1998
+Layer
+Input Size Hyperparameters Output Size Memory (KB)Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv 1 28 20 5 1 2 20 28 61.25 0.52 0.39
+ReLU 20 28 N.A. N.A. N.A. N.A. 20 28 61.25 0 0
+MaxPool 20 28 N.A. 2 2 0 20 14 15.31 0 0
+Conv 20 14 50 5 1 2 50 14 38.28 25.05 4.9
+ReLU 50 14 N.A. N.A. N.A. N.A. 50 14 38.28 0 0
+MaxPool 50 14 N.A. 2 2 0 50 7 9.57 0 0
+Flatten 50 7 N.A. N.A. N.A. N.A.2450 N.A. 9.57 0 0
+FC 2450N.A. 500 N.A. N.A. N.A.500 N.A. 1.95 1225 1.23
+ReLU 500 N.A. N.A. N.A. N.A. N.A.500 N.A. 1.95 0 0
+FC 500 N.A. 10 N.A. N.A. N.A. 10 N.A. 0.04 5.01 0.05
+Softmax 10 N.A. N.A. N.A. N.A. N.A. 10 N.A. 0.04 0 0
+20
+
+
+===== PAGE 21 TEXT =====
+Classic Architecture
+➢ [Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪ AlexNet, Krizhevsky et al., NIPS 2012
+Won ImageNet Large Scale Visual Recognition Challenge (ILSVRC) 
+by a large margin
+ImageNet: Large image database
+(More than 14 million labelled images, 20000 categories)
+ILSVRC: ImageNet-1K 
+(1281167 training images, 50000 validation images, 
+100000 test images, 1000 classes)
+21
+
+
+===== PAGE 22 TEXT =====
+Classic Architecture
+➢ [Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪ AlexNet, Krizhevsky et al., NIPS 2012
+Conv # = Conv layer + ReLU
+FC # = FC layer + ReLU (Except the last FC)
+22
+
+
+===== PAGE 23 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪AlexNet, Krizhevsky et al., NIPS 2012
+Conv # = Conv layer + ReLU
+FC # = FC layer + ReLU (Except the last FC)
+Layer
+Input Size Hyperparameters Output Size Memory (KB)Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv1 3 227 11 4 96 55
+Pool1 96 55 N.A. 3 2 0
+Conv2 5 1 2 256 27
+Pool2256 27 N.A. 3 2 0
+Conv3 3 1 1 384 13
+Conv4384 13 3 1 384 13
+Conv5384 13 3 1 256 13
+Pool5256 13 N.A. 3 2 0
+Flatten
+FC6 4096
+FC7 4096
+FC8 1000
+Pool # = Max Pooling
+23
+
+
+===== PAGE 24 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪AlexNet, Krizhevsky et al., NIPS 2012
+Conv # = Conv layer + ReLU
+FC # = FC layer + ReLU (Except the last FC)
+Layer
+Input Size Hyperparameters Output Size Memory (KB)Params (k)MACs (M)
+Cin H/W Filters Kernel Stride Pad Cout H’/W’
+Conv1 3 227 96 11 4 0 96 55 1134 35 105
+Pool1 96 55 N.A. 3 2 0 96 27 274 0 0
+Conv2 96 27 256 5 1 2 256 27 729 615 448
+Pool2 256 27 N.A. 3 2 0 256 13 169 0 0
+Conv3256 13 384 3 1 1 384 13 254 885 150
+Conv4384 13 384 3 1 1 384 13 254 1327 224
+Conv5384 13 256 3 1 1 256 13 169 885 150
+Pool5 256 13 N.A. 3 2 0 256 6 36 0 0
+Flatten256 6 N.A. N.A. N.A. N.A.9216 N.A 36 0 0
+FC6 9216 N.A 4096 N.A. N.A. N.A.4096 N.A. 16 37753 38
+FC7 4096N.A. 4096 N.A. N.A. N.A.4096 N.A. 16 16781 17
+FC8 4096N.A. 1000 N.A. N.A. N.A.1000 N.A. 4 4096 0
+Pool # = Max Pooling
+24
+
+
+===== PAGE 25 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪AlexNet, Krizhevsky et al., NIPS 2012
+Conv # = Conv layer + ReLU
+FC # = FC layer + ReLU 
+(Except the last FC)
+0
+200
+400
+600
+800
+1000
+1200
+Memory (KB)
+0
+5000
+10000
+15000
+20000
+25000
+30000
+35000
+40000
+Params (k)
+0
+50
+100
+150
+200
+250
+300
+350
+400
+450
+500
+MACs (M)
+25
+
+
+===== PAGE 26 TEXT =====
+Classic Architecture
+➢ [Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪ ZFNet, Zeiler et al., ECCV 2014
+26
+
+
+===== PAGE 27 TEXT =====
+Classic Architecture
+➢ [Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪ ZFNet, Zeiler et al., ECCV 2014
+Improved on AlexNet:
+✓ Conv1:  (11x11 stride 4) → (7x7 stride 2)
+✓ Conv3,4,5:  (384, 384, 256 filters) → (512, 
+1024, 512)
+i. Effect of a smaller stride
+e.g., the input is [0,0,10,10,0,0], filter is [1,1,1] 
+Scenario A: Small Stride (S=1)
+Output=[10,20,20,10]
+Scenario B: Large Stride (S=3)
+Output=[10,10]
+ii. Effect of a smaller filter size
+e.g., the input is [0,0,10,10,0,0], S=1
+Scenario A: Small Filter Size (K=3)
+Output=[10,20,20,10]
+Scenario B: Large Filter Size (K=5)
+Output=[20,20]
+27
+
+
+===== PAGE 28 TEXT =====
+Classic Architecture
+➢ [Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪ ZFNet, Zeiler et al., ECCV 2014
+Improved on AlexNet:
+✓ Conv1:  (11x11 stride 4) → (7x7 stride 2)
+✓ Conv3,4,5:  (384, 384, 256 filters) → (512, 
+1024, 512)
+1st layer features from AlexNet 1st layer features from ZFNet
+28
+
+
+===== PAGE 29 TEXT =====
+Classic Architecture
+➢ [Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, FC, Softmax
+▪ ZFNet, Zeiler et al., ECCV 2014
+Improved on AlexNet:
+✓ Conv1:  (11x11 stride 4) → (7x7 stride 2)
+✓ Conv3,4,5:  (384, 384, 256 filters) → (512, 
+1024, 512)
+iii. Effect of a larger filter numbers
+1 0
+1 0
+0 1
+0 1
+2 Filters 4 Filters
+1 0
+1 0
+0 1
+0 1
+1 1
+0 0
+0 0
+1 1
+29
+
+
+===== PAGE 30 TEXT =====
+Classic Architecture
+➢ [Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, 
+FC, Softmax
+▪ VGGNet, Simonyan et al., ICLR 2015
+30
+
+
+===== PAGE 31 TEXT =====
+Classic Architecture
+➢ [Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, 
+FC, Softmax
+▪ VGGNet, Simonyan et al., ICLR 2015
+VGG16 VGG19
+3x3 conv, 128
+2x2 Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+3x3 conv, 128
+2x2 Pool
+3x3 conv, 256
+3x3 conv, 256
+2x2 Pool
+3x3 conv, 512
+3x3 conv, 512
+2x2 Pool
+3x3 conv, 512
+3x3 conv, 512
+2x2 Pool
+FC 4096
+FC 1000
+Softmax
+FC 4096
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 384
+3x3 Pool
+5x5 conv, 256
+11x11 conv, 96
+Input
+3x3 Pool
+3x3 conv, 384
+3x3 conv, 256
+3x3 Pool
+FC 4096
+FC 4096
+Softmax
+FC 1000
+2x2 Pool
+Input
+2x2 Pool
+2x2 Pool
+2x2 Pool
+2x2 Pool
+Softmax
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 128
+3x3 conv, 128
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+FC 4096
+FC 1000
+FC 4096
+AlexNet
+3x3 conv, 512
+3x3 Pool
+5x5 conv, 256
+7x7 conv, 96
+Input
+3x3 Pool
+3x3 conv, 1024
+3x3 conv, 512
+3x3 Pool
+FC 4096
+FC 4096
+Softmax
+FC 1000
+ZFNet
+VGG Design rules:
+All conv are 3x3 stride 1 pad 1 
+All max pool are 2x2 stride 2
+After pool, double #filters
+5 Conv Stages:
+Stage 1: conv-conv-pool
+Stage 2: conv-conv-pool
+Stage 3: conv-conv-conv-(conv)-pool
+Stage 4: conv-conv-conv-(conv)-pool
+Stage 5: conv-conv-conv-(conv)-pool
+3x3 conv, 256 3x3 conv, 256
+3x3 conv, 256
+31
+
+
+===== PAGE 32 TEXT =====
+Classic Architecture
+➢ [Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, 
+FC, Softmax
+▪ VGGNet, Simonyan et al., ICLR 2015
+VGG Design rules:
+✓ All conv are 3x3 stride 1 pad 1 
+(Smallest size to capture the notion of left/right, 
+up/down, center) 
+Why use the smallest? 
+Why not 5x5 or 7x7?
+If a 5x5 conv layer, 
+5x5 receptive field 
+If two 3x3 conv layers, 
+5x5 receptive field 
+Input OutputReLU
+ReLU ReLU
+VGG16 VGG19
+3x3 conv, 128
+2x2 Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+3x3 conv, 128
+2x2 Pool
+3x3 conv, 256
+3x3 conv, 256
+2x2 Pool
+3x3 conv, 512
+3x3 conv, 512
+2x2 Pool
+3x3 conv, 512
+3x3 conv, 512
+2x2 Pool
+FC 4096
+FC 1000
+Softmax
+FC 4096
+3x3 conv, 512
+3x3 conv, 512
+2x2 Pool
+Input
+2x2 Pool
+2x2 Pool
+2x2 Pool
+2x2 Pool
+Softmax
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 128
+3x3 conv, 128
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+FC 4096
+FC 1000
+FC 4096
+3x3 conv, 256 3x3 conv, 256
+3x3 conv, 256
+32
+
+
+===== PAGE 33 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, 
+FC, Softmax
+▪VGGNet, Simonyan et al., ICLR 2015
+VGG Design rules:
+✓All conv are 3x3 stride 1 pad 1 
+(Smallest size to capture the notion of left/right, 
+up/down, center) 
+Why use the smallest? 
+Why not 5x5 or 7x7?
+VGG16 VGG19
+3x3conv, 128
+2x2 Pool
+3x3conv, 64
+3x3conv, 64
+Input
+3x3conv, 128
+2x2 Pool
+3x3conv, 256
+3x3conv, 256
+2x2 Pool
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+FC4096
+FC1000
+Softmax
+FC4096
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+Input
+2x2 Pool
+2x2 Pool
+2x2 Pool
+2x2 Pool
+Softmax
+3x3conv, 512
+3x3conv, 512
+3x3conv, 256
+3x3conv, 256
+3x3conv, 128
+3x3conv, 128
+3x3conv, 64
+3x3conv, 64
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+FC4096
+FC1000
+FC4096
+3x3conv, 256 3x3conv, 256
+3x3conv, 256
+If a 5x5 conv layer (Cin = Cout = C, same padding), 
+5x5 receptive field, 
+If two 3x3 conv layers (Cin = Cout = C),  
+5x5 receptive field, 
+1 ReLU layer,
+2 ReLU layers,
+? Params
+? Params
+? MACs
+? MACs
+Input: Cin x H x W
+33
+
+
+===== PAGE 34 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, 
+FC, Softmax
+▪VGGNet, Simonyan et al., ICLR 2015
+VGG Design rules:
+✓All conv are 3x3 stride 1 pad 1 
+(Smallest size to capture the notion of left/right, 
+up/down, center) 
+Why use the smallest? 
+Why not 5x5 or 7x7?
+VGG16 VGG19
+3x3conv, 128
+2x2 Pool
+3x3conv, 64
+3x3conv, 64
+Input
+3x3conv, 128
+2x2 Pool
+3x3conv, 256
+3x3conv, 256
+2x2 Pool
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+FC4096
+FC1000
+Softmax
+FC4096
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+Input
+2x2 Pool
+2x2 Pool
+2x2 Pool
+2x2 Pool
+Softmax
+3x3conv, 512
+3x3conv, 512
+3x3conv, 256
+3x3conv, 256
+3x3conv, 128
+3x3conv, 128
+3x3conv, 64
+3x3conv, 64
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+FC4096
+FC1000
+FC4096
+3x3conv, 256 3x3conv, 256
+3x3conv, 256
+If a 5x5 conv layer (Cin = Cout = C, same padding), 
+5x5 receptive field, 
+If two 3x3 conv layers (Cin = Cout = C),  
+5x5 receptive field, 
+1 ReLU layer,
+2 ReLU layers,
+25C2 Params
+18C2 Params
+25C2HW MACs
+18C2HW MACs
+Input: Cin x H x W
+34
+
+
+===== PAGE 35 TEXT =====
+Classic Architecture
+➢ [Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, 
+FC, Softmax
+▪ VGGNet, Simonyan et al., ICLR 2015
+VGG Design rules:
+✓ All conv are 3x3 stride 1 pad 1 
+(Smallest size to capture the notion of left/right, 
+up/down, center) 
+Why use the smallest? 
+Why not 5x5 or 7x7?
+VGG16 VGG19
+3x3 conv, 128
+2x2 Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+3x3 conv, 128
+2x2 Pool
+3x3 conv, 256
+3x3 conv, 256
+2x2 Pool
+3x3 conv, 512
+3x3 conv, 512
+2x2 Pool
+3x3 conv, 512
+3x3 conv, 512
+2x2 Pool
+FC 4096
+FC 1000
+Softmax
+FC 4096
+3x3 conv, 512
+3x3 conv, 512
+2x2 Pool
+Input
+2x2 Pool
+2x2 Pool
+2x2 Pool
+2x2 Pool
+Softmax
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 128
+3x3 conv, 128
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+FC 4096
+FC 1000
+FC 4096
+3x3 conv, 256 3x3 conv, 256
+3x3 conv, 256
+If a 7x7 conv layer, 
+If three 3x3 conv layers, 
+Input Output
+Input Output
+35
+
+
+===== PAGE 36 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, 
+FC, Softmax
+▪VGGNet, Simonyan et al., ICLR 2015
+VGG Design rules:
+✓All conv are 3x3 stride 1 pad 1 
+(Smallest size to capture the notion of left/right, 
+up/down, center) 
+Why use the smallest? 
+Why not 5x5 or 7x7?
+VGG16 VGG19
+3x3conv, 128
+2x2 Pool
+3x3conv, 64
+3x3conv, 64
+Input
+3x3conv, 128
+2x2 Pool
+3x3conv, 256
+3x3conv, 256
+2x2 Pool
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+FC4096
+FC1000
+Softmax
+FC4096
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+Input
+2x2 Pool
+2x2 Pool
+2x2 Pool
+2x2 Pool
+Softmax
+3x3conv, 512
+3x3conv, 512
+3x3conv, 256
+3x3conv, 256
+3x3conv, 128
+3x3conv, 128
+3x3conv, 64
+3x3conv, 64
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+FC4096
+FC1000
+FC4096
+3x3conv, 256 3x3conv, 256
+3x3conv, 256
+If a 7x7 conv layer (Cin = Cout = C same padding), 
+7x7 receptive field, 
+If three 3x3 conv layers (Cin = Cout = C),  
+7x7 receptive field, 
+1 ReLU layer,
+3 ReLU layers,
+? Params
+? Params
+? MACs
+? MACs
+Input: Cin x H x W
+36
+
+
+===== PAGE 37 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, 
+FC, Softmax
+▪VGGNet, Simonyan et al., ICLR 2015
+VGG Design rules:
+✓All conv are 3x3 stride 1 pad 1 
+(Smallest size to capture the notion of left/right, 
+up/down, center) 
+Why use the smallest? 
+Why not 5x5 or 7x7?
+VGG16 VGG19
+3x3conv, 128
+2x2 Pool
+3x3conv, 64
+3x3conv, 64
+Input
+3x3conv, 128
+2x2 Pool
+3x3conv, 256
+3x3conv, 256
+2x2 Pool
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+FC4096
+FC1000
+Softmax
+FC4096
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+Input
+2x2 Pool
+2x2 Pool
+2x2 Pool
+2x2 Pool
+Softmax
+3x3conv, 512
+3x3conv, 512
+3x3conv, 256
+3x3conv, 256
+3x3conv, 128
+3x3conv, 128
+3x3conv, 64
+3x3conv, 64
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+FC4096
+FC1000
+FC4096
+3x3conv, 256 3x3conv, 256
+3x3conv, 256
+If a 7x7 conv layer (Cin = Cout = C same padding), 
+7x7 receptive field, 
+If three 3x3 conv layers (Cin = Cout = C),  
+7x7 receptive field, 
+1 ReLU layer,
+3 ReLU layers,
+49C2 Params
+27C2 Params
+49C2HW MACs
+27C2HW MACs
+Input: Cin x H x W
+37
+
+
+===== PAGE 38 TEXT =====
+Classic Architecture
+➢[Conv, (BN), ReLU, (Pool)] x N, Flatten, [FC, (BN), ReLU] x M, 
+FC, Softmax
+▪VGGNet, Simonyan et al., ICLR 2015
+VGG Design rules:
+✓All conv are 3x3 stride 1 pad 1
+✓All max pool are 2x2 stride 2
+✓After pool, double #filters
+VGG16 VGG19
+3x3conv, 128
+2x2 Pool
+3x3conv, 64
+3x3conv, 64
+Input
+3x3conv, 128
+2x2 Pool
+3x3conv, 256
+3x3conv, 256
+2x2 Pool
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+FC4096
+FC1000
+Softmax
+FC4096
+3x3conv, 512
+3x3conv, 512
+2x2 Pool
+Input
+2x2 Pool
+2x2 Pool
+2x2 Pool
+2x2 Pool
+Softmax
+3x3conv, 512
+3x3conv, 512
+3x3conv, 256
+3x3conv, 256
+3x3conv, 128
+3x3conv, 128
+3x3conv, 64
+3x3conv, 64
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+3x3conv, 512
+FC4096
+FC1000
+FC4096
+3x3conv, 256 3x3conv, 256
+3x3conv, 256Input: C x 2H x 2W
+Layer: MaxPool (2x2, stride 2)
+Output: C x 2H x 2W
+Layer: Conv (3x3, Cin = Cout = C)
+Layer: Conv (3x3, Cout = 2C)
+Output: 2C x H x W
+Option 1: Option 2:
+Input: C x 2H x 2W
+Receptive FieldMemoryParams MACs
+opt1 3x3 4HWC 9C2 36HWC2
+opt2 6x6 2HWC 18C2 18HWC2
+38
+
+
+===== PAGE 39 TEXT =====
+Other Architectures: 
+Inception Networks
+39
+
+
+===== PAGE 40 TEXT =====
+Other Architectures: Inception
+➢ GoogLeNet, Szegedy et al., CVPR 2015
+• Inception Module
+40
+
+
+===== PAGE 41 TEXT =====
+Other Architectures: Inception
+➢ GoogLeNet, Szegedy et al., CVPR 2015
+• Inception Module
+Naïve version
+Motivation: “Which filter size is the best”
+Small filter: fine details
+Large filter: more context
+Add for robustness
+Solution: run 1x1, 3x3, and 5x5 in parallel
+192 x 28 x 28
+64 x 28 x 28 128 x 28 x 28 32 x 28 x 28 192 x 28 x 28
+416 x 28 x 28
+64 Filters: 
+192x1x1
+128 Filters: 
+192x3x3
+32 Filters: 
+192x5x5
+(Computations blow up)Params: 387K 
+MACs: 303M 
+Very deep feature map
+41
+
+
+===== PAGE 42 TEXT =====
+Other Architectures: Inception
+➢ GoogLeNet, Szegedy et al., CVPR 2015
+• Inception Module
+Problem with Naïve version: “Computations Blow Up”
+Solution: Use 1x1 convolution before big filters to reduce depth
+192 x 28 x 28
+64 Filters: 192x1x1
+96 Filters:192x1x1 16 Filters: 192x1x1
+128 Filters: 96x3x3 32 Filters: 16x5x5 32 Filters: 192x1x1
+Params: 304K 
+MACs: 238M 
+Output size?
+42
+
+
+===== PAGE 43 TEXT =====
+Other Architectures: Inception
+➢ GoogLeNet, Szegedy et al., CVPR 2015
+• Stem network at the start
+Layer
+Input Size Hyperparameters Output Size Memory
+(KB)
+Params
+(k)
+MACs
+(M)
+Cin H/W Filters K S P Cout H’/W’
+Conv 3 224 64 7 2 3 64 112 3136 9 118
+MaxPool 64 112 3 2 1 64 56 784 0 0
+Conv 64 56 64 1 1 0 64 56 784 4 13
+Conv 64 56 192 3 1 1 192 56 2352 111 347
+MaxPool 192 56 3 2 1 192 28 588 0 0
+Aggressively downsamples input from 224 to 28 spatially. 
+Why not directly feed raw 
+input to inception module?
+43
+
+
+===== PAGE 44 TEXT =====
+Other Architectures: Inception
+➢ GoogLeNet, Szegedy et al., CVPR 2015
+• Global Average Pooling + FC at the end
+Layer
+Input Size Hyperparameters Output Size Memory
+(KB)
+Params
+(k)
+MACs
+(M)
+Cin H/W Filters K S P Cout H’/W’
+GAP 1024 7 7 1 0 1024 1 4 0 0
+FC 1024 1000 1000 1 4 1025 1
+Layer
+Input Size Hyperparameters Output Size Memory
+(KB)
+Params
+(k)
+MACs
+(M)
+Cin H/W Filters K S P Cout H’/W’
+Flatten 1024 7 50176 1 196 0 0
+FC 50176 1000 1000 1 4 50175 50
+Compared with Flattening + FC at the end
+44
+
+
+===== PAGE 45 TEXT =====
+Other Architectures: Inception
+➢ GoogLeNet, Szegedy et al., CVPR 2015
+• Auxiliary Classifiers in the intermediate layers 
+Motivation: 22 layers deep → vanishing gradient problem
+Solution:  add extra gradient paths directly to earlier layers
+How: during training, their losses are added to the main loss 
+with a small weight.
+during inference, discarded.
+45
+
+
+===== PAGE 46 TEXT =====
+Other Architectures: 
+Residual Networks
+46
+
+
+===== PAGE 47 TEXT =====
+Other Architectures: Residual
+➢ ResNet, He et al., CVPR 2016
+Softmax
+3x3 conv, 64
+FC 1000
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 128
+3x3 conv, 128, / 2
+3x3 conv, 128
+3x3 conv, 128
+3x3 conv, 128
+3x3 conv, 128
+..
+.
+3x3 conv, 512
+3x3 conv, 512, /2
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 64
+Pool
+7x7 conv, 64 , / 2
+Input
+ReLU
+conv
+conv
+ReLU
+• Residual Block
+X
+F(X)
+F(X)+X
+Identity/skip connection
+47He et al, “Deep Residual Learning for Image Recognition”,CVPR 2016
+
+
+===== PAGE 48 TEXT =====
+Other Architectures: Residual
+➢ ResNet, He et al., CVPR 2016
+• Residual Block
+Motivation: deeper networks better?
+Adding more layers hurts training accuracy
+Goal: deeper networks should model at least as well as a shallower one
+The extra layers should learn identity mapping!
+48He et al, “Deep Residual Learning for Image Recognition”,CVPR 2016
+
+
+===== PAGE 49 TEXT =====
+Other Architectures: Residual
+➢ResNet, He et al., CVPR 2016
+•Residual Block
+Motivation: The network should learn identity mapping
+Solution: Add “Shortcut”
+relu
+conv
+conv
+relu
+X
+F(X)
+F(X)+X
+Additive 
+“shortcut”
+If you set these to 
+0,thewholeblock 
+will compute the 
+identityfunction!
+49
+Why addition 
+before ReLU?
+Heet al,“DeepResidual LearningforImageRecognition”,CVPR2016
+
+
+===== PAGE 50 TEXT =====
+Other Architectures: Residual
+➢ ResNet, He et al., CVPR 2016
+Softmax
+3x3 conv, 64
+FC 1000
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 128
+3x3 conv, 128, / 2
+3x3 conv, 128
+3x3 conv, 128
+3x3 conv, 128
+3x3 conv, 128
+..
+.
+3x3 conv, 512
+3x3 conv, 512, /2
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+relu
+3x3 conv
+3x3 conv
+F(x) + x
+F(x)
+relu
+x
+3x3 conv, 64
+Pool
+7x7 conv, 64, / 2 
+Input
+A stack of multiple residual blocks
+Network is divided into stages: 
+the first block of each stage halves 
+the resolution (with stride-2 conv) 
+and doubles the number of channels
+Layer
+Input Size Hyperparameters Output Size
+Cin H/W Filters K S P Cout H’/W’
+Conv 3 224 64 7 2 3 64 112
+MaxPool 64 112 3 2 1 64 56
+Residual block
+stem
+Like GoogLeNet
+50
+How to ensure 
+same dimension 
+for F(x) and x?
+He et al, “Deep Residual Learning for Image Recognition”,CVPR 2016
+
+
+===== PAGE 51 TEXT =====
+Other Architectures: Residual
+➢ ResNet, He et al., CVPR 2016
+51
+Identity
+“shortcut”
+✓ Residual block(identity shortcut) ✓ Residual block(projection shortcut)
+Projection
+“shortcut”
+relu
+3x3 conv
+3x3 conv
+F(x) + x
+F(x)
+relu
+relu
+3x3 conv, /2
+3x3 conv
+F(x) + x'
+F(x)
+relu
+1x1 conv, /2
+x x
+Introduced when the 
+dimensions of x and 
+F(x) are different.
+He et al, “Deep Residual Learning for Image Recognition”,CVPR 2016
+
+
+===== PAGE 52 TEXT =====
+Other Architectures: Residual
+➢ResNet, He et al., CVPR 2016
+Softmax
+3x3conv, 64
+FC1000
+3x3conv, 64
+3x3conv, 64
+3x3conv, 64
+3x3conv, 64
+3x3conv, 128
+3x3 conv,128, /2
+3x3conv, 128
+3x3conv, 128
+3x3conv, 128
+3x3conv, 128
+..
+.
+3x3conv, 512
+3x3conv,512,/2
+3x3conv, 512
+3x3conv, 512
+3x3conv,512
+3x3conv,512
+Pool
+relu
+3x3conv
+3x3conv
+F(x)+x
+F(x)
+relu
+x
+3x3conv,64
+Pool
+7x7 conv, 64,/2 
+Input
+Residual block
+ResNet-18:
+Stem:1convlayer
+Stage1(C=64):2res.block=4conv
+Stage2(C=128):2res.block=4conv
+Stage3(C=256):2res.block=4conv
+Stage4(C=512):2res.block=4conv 
+Global Average Pooling + FC
+ImageNet top-5 error: 10.92, MACs (G): 1.8
+ResNet-34:
+Stem:1convlayer
+Stage1:3res.block=6conv
+Stage2:4res.block=8conv
+Stage3:6res.block=12conv
+Stage4:3res.block=6conv
+Global Average Pooling + FC
+ImageNet top-5 error: 8.58, MACs: 3.6
+52Heet al,“DeepResidual LearningforImageRecognition”,CVPR2016
+
+
+===== PAGE 53 TEXT =====
+Other Architectures: Residual
+➢ResNet, He et al., CVPR 2016
+Softmax
+3x3conv, 64
+FC1000
+3x3conv, 64
+3x3conv, 64
+3x3conv, 64
+3x3conv, 64
+3x3conv, 128
+3x3 conv,128, /2
+3x3conv, 128
+3x3conv, 128
+3x3conv, 128
+3x3conv, 128
+..
+.
+3x3conv, 512
+3x3conv,512,/2
+3x3conv, 512
+3x3conv, 512
+3x3conv,512
+3x3conv,512
+Pool
+3x3conv,64
+Pool
+7x7 conv, 64,/2 
+Input
+Softmax
+3x3conv, 64
+FC1000
+3x3conv, 64
+3x3conv, 64
+3x3conv, 64
+3x3conv, 64
+3x3conv, 128
+3x3 conv,128, /2
+3x3conv, 128
+3x3conv, 128
+3x3conv, 128
+3x3conv, 128
+..
+.
+3x3conv, 512
+3x3conv,512,/2
+3x3conv, 512
+3x3conv, 512
+3x3conv,512
+3x3conv,512
+Pool
+3x3conv,64
+Pool
+7x7 conv, 64,/2 
+Input
+Plain vs Residual
+53
+Thin curve: 
+training error
+Bold curve: 
+validataion error
+Heet al,“DeepResidual LearningforImageRecognition”,CVPR2016
+
+
+===== PAGE 54 TEXT =====
+Other Architectures: Residual
+➢ ResNet, He et al., CVPR 2016
+“Basic” Residual block
+Conv(3x3, 4C->4C)
+Conv(3x3, 4C->4C)
+Conv(1x1, 4C->C)
+Conv(3x3, C->C)
+Conv(1x1, C->4C)
+MACs: 144HWC2
+MACs: 144HWC2
+MACs: 4HWC2
+MACs: 9HWC2
+MACs: 4HWC2
+Total MACs:  288HWC2
+TotalMACs: 17HWC2
+“Bottleneck” Residual block
+Params: 144C2
+Params: 144C2
+Total Params:  288C2
+Params: 4C2
+Params: 9C2
+Params: 4C2
+Total Params:  17C2
+Memory: 4HWC
+Memory: 4HWC
+Memory: HWC
+Memory: HWC
+Memory: 4HWC
+Total Memory: 8HWC
+TotalMemory: 6HWC
+(reduce)
+(restore)
+54
+
+
+===== PAGE 55 TEXT =====
+Other Architectures: Residual
+➢ResNet, He et al., CVPR 2016
+Stage 1 Stage 2 Stage 3 Stage 4
+Block 
+type
+Stem 
+layersBlocksLayersBlocksLayersBlocksLayersBlocksLayers
+FC
+layersMACs
+(G)
+ImageNet 
+top-5error
+ResNet-18Basic 1 2 4 2 4 2 4 2 4 11.8 10.92
+ResNet-34Basic 1 3 6 4 8 6 12 3 6 13.6 8.58
+ResNet-50Bottle 1 3 9 4 12 6 18 3 9 13.8 7.13
+ResNet-101Bottle 1 3 9 4 12 23 69 3 9 17.6 6.44
+ResNet-152Bottle 1 3 9 8 24 36108 3 9 111.3 5.94
+55Heet al,“DeepResidual LearningforImageRecognition”,CVPR2016
+
+
+===== PAGE 56 TEXT =====
+Other Architectures: Residual
+➢ ResNet, He et al., CVPR 2016
+“Post-Activation” Residual Block
+(Conv → Batch Norm → ReLU)
+3x3 Conv
+Batch Norm
+ReLU
+3x3 Conv
+Batch Norm
+ReLU
+Basic
+1x1 Conv
+Batch Norm
+ReLU
+3x3 Conv
+Batch Norm
+ReLU
+ReLU
+1x1 Conv
+Batch Norm
+Bottleneck
+“Pre-Activation” Residual Block
+(Batch Norm → ReLU → Conv)
+Batch Norm
+ReLU
+3x3 Conv
+Batch Norm
+ReLU
+3x3Conv
+ 1x1 Conv
+Batch Norm
+ReLU
+1x1 Conv
+Batch Norm
+ReLU
+ReLU
+3x3 Conv
+Batch Norm
+Basic Bottleneck
+56He et al, “Deep Residual Learning for Image Recognition”,CVPR 2016
+
+
+===== PAGE 57 TEXT =====
+Other Architectures: Residual
+➢ResNet Variants
+✓Inception-ResNet
+Activation
+Scaling
+1x1 Conv
+Inception
+ReLU
+ReLU
+✓ResNeXt
+1x1 Conv
+3x3 Conv
+ReLU
+ReLU
+1x1 Conv
+3x3 Conv…
+Split channels into G groups
+Concatenate
+57
+
+
+===== PAGE 58 TEXT =====
+Other Architectures: Residual
+➢ ResNet Variants
+✓ ResNeXt
+1x1 Conv
+3x3 Conv
+ReLU
+ReLU
+1x1 Conv
+3x3 Conv…
+Split channels into G groups
+Concatenate
+✓ ResNet
+1x1 Conv
+ReLU
+ReLU
+1x1 Conv
+3x3 Conv
+MACs: 4HWC2
+(4C->C)
+(C->C)
+(C->4C)
+MACs: 9HWC2
+MACs: 4HWC2
+(4C->C)
+(𝐶
+𝐺 -> 𝐶
+𝐺 ) (𝐶
+𝐺 -> 𝐶
+𝐺 )
+MACs: 4HWC2
+MACs:9HWC2
+𝐺  
+(C->4C)MACs: 4HWC2
+58
+
+
+===== PAGE 59 TEXT =====
+Comparison
+59
+FYI
+
+
+===== PAGE 60 TEXT =====
+Comparison
+Canzianietal,“Ananalysisofdeepneuralnetworkmodelsforpracticalapplications” ,2017
+Inception-v4: ResNet + Inception!
+60
+FYI
+
+
+===== PAGE 61 TEXT =====
+Comparison
+Canziani et al, “Ananalysis of deep neural network models for practical applications” ,2017
+VGG: Most params, most operations
+61
+FYI
+
+
+===== PAGE 62 TEXT =====
+Comparison
+Canziani et al, “Ananalysis of deep neural network models for practical applications” ,2017
+AlexNet: Low compute, lots
+of parameters
+62
+FYI
+
+
+===== PAGE 63 TEXT =====
+Comparison
+Canziani et al, “Ananalysis of deep neural network models for practical applications” ,2017
+ResNet: Simple design, moderate 
+efficiency, high accuracy
+63
+FYI
+
+
+===== PAGE 64 TEXT =====
+THE END
+64
+
+
+===== PAGE 65 TEXT =====
